@@ -1,0 +1,1 @@
+ALTER TABLE products ADD COLUMN IF NOT EXISTS min_stock_quantity INTEGER DEFAULT 0;
