@@ -260,7 +260,7 @@ export default function NewOrder() {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
+      <div className="space-y-6 pb-24 lg:pb-0">
         {/* Header */}
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={() => navigate('/orders')}>
@@ -279,7 +279,7 @@ export default function NewOrder() {
             <Card>
               <CardContent className="p-4">
                 <Tabs value={orderType} onValueChange={(v) => setOrderType(v as typeof orderType)}>
-                  <TabsList className="grid grid-cols-3">
+                  <TabsList className="grid w-full grid-cols-3">
                     <TabsTrigger value="counter">Balcão</TabsTrigger>
                     <TabsTrigger value="table">Mesa</TabsTrigger>
                     <TabsTrigger value="delivery">Delivery</TabsTrigger>
@@ -375,7 +375,7 @@ export default function NewOrder() {
             </div>
 
             {/* Products Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 min-[400px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
               {filteredProducts.map((product) => (
                 <Card
                   key={product.id}
@@ -479,21 +479,21 @@ export default function NewOrder() {
                       />
                     </div>
 
-                    <div className="border-t pt-4">
-                      <div className="flex items-center justify-between text-lg font-bold">
+                    <div className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t shadow-[0_-4px_10px_rgba(0,0,0,0.1)] z-50 lg:static lg:p-0 lg:bg-transparent lg:border-none lg:shadow-none lg:z-auto">
+                      <div className="flex items-center justify-between text-lg font-bold mb-3 lg:pt-4 lg:border-t">
                         <span>Total</span>
                         <span className="text-primary">{formatCurrency(cartTotal)}</span>
                       </div>
-                    </div>
 
-                    <Button
-                      className="w-full gradient-primary btn-bounce"
-                      size="lg"
-                      onClick={saveOrder}
-                      disabled={saving}
-                    >
-                      {saving ? 'Salvando...' : 'Confirmar Pedido'}
-                    </Button>
+                      <Button
+                        className="w-full gradient-primary btn-bounce"
+                        size="lg"
+                        onClick={saveOrder}
+                        disabled={saving}
+                      >
+                        {saving ? 'Salvando...' : 'Confirmar Pedido'}
+                      </Button>
+                    </div>
                   </>
                 )}
               </CardContent>
