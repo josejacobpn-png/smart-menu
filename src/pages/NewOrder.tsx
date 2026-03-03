@@ -274,16 +274,18 @@ export default function NewOrder() {
 
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Products Section */}
-          <div className="lg:col-span-2 space-y-4">
+          <div className="lg:col-span-2 space-y-4 min-w-0 overflow-hidden lg:overflow-visible">
             {/* Order Type */}
             <Card>
               <CardContent className="p-4">
                 <Tabs value={orderType} onValueChange={(v) => setOrderType(v as typeof orderType)}>
-                  <TabsList className="flex w-full overflow-x-auto scrollbar-hide">
-                    <TabsTrigger value="counter" className="flex-1 min-w-[80px]">Balcão</TabsTrigger>
-                    <TabsTrigger value="table" className="flex-1 min-w-[80px]">Mesa</TabsTrigger>
-                    <TabsTrigger value="delivery" className="flex-1 min-w-[80px]">Delivery</TabsTrigger>
-                  </TabsList>
+                  <div className="w-full overflow-hidden">
+                    <TabsList className="flex w-full overflow-x-auto scrollbar-hide">
+                      <TabsTrigger value="counter" className="flex-1 min-w-[80px]">Balcão</TabsTrigger>
+                      <TabsTrigger value="table" className="flex-1 min-w-[80px]">Mesa</TabsTrigger>
+                      <TabsTrigger value="delivery" className="flex-1 min-w-[80px]">Delivery</TabsTrigger>
+                    </TabsList>
+                  </div>
                 </Tabs>
 
                 {orderType === 'table' && (
@@ -354,24 +356,26 @@ export default function NewOrder() {
             </Card>
 
             {/* Categories */}
-            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-              <Button
-                variant={selectedCategory === null ? 'default' : 'outline'}
-                onClick={() => setSelectedCategory(null)}
-                className="flex-shrink-0"
-              >
-                Todos
-              </Button>
-              {categories.map((cat) => (
+            <div className="w-full overflow-hidden">
+              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
                 <Button
-                  key={cat.id}
-                  variant={selectedCategory === cat.id ? 'default' : 'outline'}
-                  onClick={() => setSelectedCategory(cat.id)}
+                  variant={selectedCategory === null ? 'default' : 'outline'}
+                  onClick={() => setSelectedCategory(null)}
                   className="flex-shrink-0"
                 >
-                  {cat.name}
+                  Todos
                 </Button>
-              ))}
+                {categories.map((cat) => (
+                  <Button
+                    key={cat.id}
+                    variant={selectedCategory === cat.id ? 'default' : 'outline'}
+                    onClick={() => setSelectedCategory(cat.id)}
+                    className="flex-shrink-0"
+                  >
+                    {cat.name}
+                  </Button>
+                ))}
+              </div>
             </div>
 
             {/* Products Grid */}
