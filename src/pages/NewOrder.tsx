@@ -411,7 +411,7 @@ export default function NewOrder() {
                     Carrinho vazio
                   </p>
                 ) : (
-                  <>
+                  <div className="space-y-4">
                     <div className="space-y-3 max-h-[400px] overflow-y-auto">
                       {cart.map((item) => (
                         <div key={item.product.id} className="border rounded-lg p-3 space-y-2">
@@ -479,28 +479,29 @@ export default function NewOrder() {
                       />
                     </div>
 
-                    <div className="fixed bottom-0 left-0 right-0 p-4 pb-8 bg-background border-t shadow-[0_-4px_10px_rgba(0,0,0,0.1)] z-50 lg:static lg:p-0 lg:pb-0 lg:bg-transparent lg:border-none lg:shadow-none lg:z-auto">
-                      <div className="flex items-center justify-between text-lg font-bold mb-3 lg:pt-4 lg:border-t">
-                        <span>Total</span>
-                        <span className="text-primary">{formatCurrency(cartTotal)}</span>
-                      </div>
-
-                      <Button
-                        className="w-full gradient-primary btn-bounce"
-                        size="lg"
-                        onClick={saveOrder}
-                        disabled={saving}
-                      >
-                        {saving ? 'Salvando...' : 'Confirmar Pedido'}
-                      </Button>
-                    </div>
-                  </>
+                  </div>
                 )}
+
+                <div className="fixed bottom-0 left-0 right-0 p-4 pb-8 bg-background border-t shadow-[0_-4px_10px_rgba(0,0,0,0.1)] z-50 lg:static lg:p-0 lg:pb-0 lg:bg-transparent lg:border-none lg:shadow-none lg:z-auto">
+                  <div className="flex items-center justify-between text-lg font-bold mb-3 lg:pt-4 lg:border-t">
+                    <span>Total {cart.length > 0 && `(${cart.length} itens)`}</span>
+                    <span className="text-primary">{formatCurrency(cartTotal)}</span>
+                  </div>
+
+                  <Button
+                    className="w-full gradient-primary btn-bounce"
+                    size="lg"
+                    onClick={saveOrder}
+                    disabled={saving || cart.length === 0}
+                  >
+                    {saving ? 'Salvando...' : 'Confirmar Pedido'}
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </div>
         </div>
       </div>
-    </MainLayout>
+    </MainLayout >
   );
 }
