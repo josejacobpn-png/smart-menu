@@ -16,23 +16,36 @@ export function SubscriptionStatus() {
         if (!restaurant) return;
 
         const updateTimer = () => {
-            const now = new Date();
-            const subEnd = restaurant.subscription_ends_at ? parseISO(restaurant.subscription_ends_at) : null;
-            const trialEnd = restaurant.trial_ends_at ? parseISO(restaurant.trial_ends_at) : null;
+            try {
+                const now = new Date();
 
-            const targetDate = subEnd || trialEnd;
+                const parseDate = (val: any) => {
+                    if (!val || typeof val !== 'string') return null;
+                    const d = parseISO(val);
+                    return isNaN(d.getTime()) ? null : d;
+                };
 
-            if (!targetDate || targetDate < now) {
+                const subEnd = parseDate(restaurant.subscription_ends_at);
+                const trialEnd = parseDate(restaurant.trial_ends_at);
+
+                const targetDate = subEnd || trialEnd;
+
+                if (!targetDate || targetDate < now) {
+                    setStatus('expired');
+                    setTimeLeft(null);
+                    return;
+                }
+
+                const days = differenceInDays(targetDate, now);
+                const hours = differenceInHours(targetDate, now) % 24;
+
+                setTimeLeft({ days, hours });
+                setStatus(subEnd ? 'subscription' : 'trial');
+            } catch (err) {
+                console.error("Error updating subscription timer:", err);
                 setStatus('expired');
                 setTimeLeft(null);
-                return;
             }
-
-            const days = differenceInDays(targetDate, now);
-            const hours = differenceInHours(targetDate, now) % 24;
-
-            setTimeLeft({ days, hours });
-            setStatus(subEnd ? 'subscription' : 'trial');
         };
 
         updateTimer();

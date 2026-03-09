@@ -14,21 +14,30 @@ export default function MainLayout({ children }: MainLayoutProps) {
   const isExpired = useMemo(() => {
     if (loading || !restaurant) return false;
 
-    const now = new Date();
-    const trialEnd = restaurant.trial_ends_at && typeof restaurant.trial_ends_at === 'string'
-      ? parseISO(restaurant.trial_ends_at)
-      : null;
-    const subEnd = restaurant.subscription_ends_at && typeof restaurant.subscription_ends_at === 'string'
-      ? parseISO(restaurant.subscription_ends_at)
-      : null;
+    try {
+      const now = new Date();
 
-    const latestEnd = subEnd || trialEnd;
+      const parseDate = (val: any) => {
+        if (!val || typeof val !== 'string') return null;
+        try {
+          const d = parseISO(val);
+          return isNaN(d.getTime()) ? null : d;
+        } catch {
+          return null;
+        }
+      };
 
-    // If no dates are set, we don't block access by default
-    if (!latestEnd) return false;
+      const trialEnd = parseDate(restaurant.trial_ends_at);
+      const subEnd = parseDate(restaurant.subscription_ends_at);
 
-    // Check if the current date is after the expiration date
-    return isAfter(now, latestEnd);
+      const latestEnd = subEnd || trialEnd;
+
+      if (!latestEnd) return false;
+      return isAfter(now, latestEnd);
+    } catch (err) {
+      console.error("Error in expiration check:", err);
+      return false; // Safely allow access on error
+    }
   }, [restaurant, loading]);
 
   return (
