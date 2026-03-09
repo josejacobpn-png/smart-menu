@@ -81,59 +81,85 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
 
     return (
         <UIDialog open={open} onOpenChange={onOpenChange}>
-            <UIDialogContent className="sm:max-w-md">
-                <UIDialogHeader>
-                    <UIDialogTitle className="flex items-center gap-2">
-                        <QrCode className="h-5 w-5 text-primary" />
+            <UIDialogContent className="sm:max-w-[425px] border-none shadow-2xl overflow-hidden p-0 gap-0">
+                <UIDialogHeader className="p-6 pb-0">
+                    <UIDialogTitle className="flex items-center gap-2 text-xl font-bold">
+                        <div className="w-8 h-8 gradient-primary rounded-lg flex items-center justify-center shadow-soft">
+                            <QrCode className="h-5 w-5 text-white" />
+                        </div>
                         Pagamento via PIX
                     </UIDialogTitle>
-                    <UIDialogDescription>
-                        Scaneie o QR Code abaixo ou utilize o código PIX Copia e Cola para ativar sua assinatura de 30 dias.
+                    <UIDialogDescription className="text-slate-500 mt-2">
+                        Scaneie o QR Code ou utilize o código PIX para ativar seu acesso.
                     </UIDialogDescription>
                 </UIDialogHeader>
 
-                <div className="flex flex-col items-center justify-center space-y-4 py-4">
-                    <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
-                        <img
-                            src="/images/pix-qrcode.png"
-                            alt="QR Code PIX"
-                            className="w-48 h-48 object-contain"
-                        />
-                    </div>
-
-                    <div className="w-full space-y-2">
-                        <p className="text-xs font-medium text-slate-500 uppercase px-1">Código Copia e Cola</p>
-                        <div className="flex items-center gap-2 p-2 bg-slate-50 rounded-lg border border-slate-200">
-                            <code className="text-[10px] flex-1 truncate font-mono text-slate-700">
-                                {pixKey}
-                            </code>
-                            <Button size="icon" variant="ghost" className="h-8 w-8" onClick={handleCopy}>
-                                {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
-                            </Button>
+                <div className="p-6 space-y-6">
+                    <div className="relative group">
+                        <div className="absolute -inset-1 bg-gradient-to-r from-primary to-orange-400 rounded-3xl blur opacity-10 group-hover:opacity-20 transition duration-500"></div>
+                        <div className="relative bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-3">
+                            <img
+                                src="/images/pix-qrcode.png"
+                                alt="QR Code PIX"
+                                className="w-52 h-52 object-contain"
+                                onError={(e) => {
+                                    // Fallback if image fails
+                                    e.currentTarget.style.display = 'none';
+                                    e.currentTarget.parentElement?.classList.add('bg-slate-50', 'flex-col');
+                                }}
+                            />
+                            <div className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">
+                                Escaneie para pagar
+                            </div>
                         </div>
                     </div>
 
-                    <div className="p-3 bg-blue-50 border border-blue-100 rounded-lg w-full">
-                        <p className="text-xs text-blue-700 leading-relaxed">
-                            <strong>Importante:</strong> Após realizar o pagamento, clique no botão abaixo para ativar seu acesso instantaneamente.
+                    <div className="space-y-3">
+                        <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block px-1">
+                            Código Copia e Cola
+                        </label>
+                        <div className="group relative">
+                            <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-xl border border-slate-200 group-hover:border-primary/30 transition-colors">
+                                <code className="text-xs flex-1 truncate font-mono text-slate-600 font-medium">
+                                    {pixKey}
+                                </code>
+                                <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    className="h-9 w-9 hover:bg-white hover:shadow-sm rounded-lg"
+                                    onClick={handleCopy}
+                                >
+                                    {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4 text-primary" />}
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="flex items-start gap-4 p-4 bg-primary/5 rounded-2xl border border-primary/10">
+                        <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                            <span className="text-[10px] font-bold text-primary">!</span>
+                        </div>
+                        <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                            <strong className="text-primary block mb-1">Passo importante:</strong>
+                            Após realizar o pagamento, você deve clicar em "Confirmar Pagamento" para liberar seu sistema.
                         </p>
                     </div>
                 </div>
 
-                <UIDialogFooter className="flex sm:justify-center gap-2">
+                <UIDialogFooter className="p-6 pt-0 flex flex-col sm:flex-row gap-3">
                     <Button
-                        variant="outline"
+                        variant="ghost"
                         onClick={() => onOpenChange(false)}
-                        className="flex-1"
+                        className="sm:flex-1 h-12 text-slate-500 font-semibold"
                     >
-                        Cancelar
+                        Voltar
                     </Button>
                     <Button
-                        className="flex-1 gradient-primary"
+                        className="sm:flex-1 h-12 gradient-primary shadow-glow font-bold text-base btn-bounce"
                         onClick={handleManualConfirm}
                         disabled={loading}
                     >
-                        {loading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                        {loading ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
                         Confirmar Pagamento
                     </Button>
                 </UIDialogFooter>

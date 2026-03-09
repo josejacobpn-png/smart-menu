@@ -40,7 +40,6 @@ export function SubscriptionStatus() {
         return () => clearInterval(interval);
     }, [restaurant]);
 
-    console.log('SubscriptionStatus render:', { restaurant, hasRoleAdmin: hasRole('admin'), status, timeLeft });
 
     if (!restaurant) return null;
 
