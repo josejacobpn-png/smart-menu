@@ -5,10 +5,10 @@ import MainLayout from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { 
-  DollarSign, 
-  ShoppingBag, 
-  Clock, 
+import {
+  DollarSign,
+  ShoppingBag,
+  Clock,
   TrendingUp,
   Plus,
   ChefHat,
@@ -41,6 +41,8 @@ export default function Dashboard() {
   }, [restaurant?.id]);
 
   const fetchDashboardData = async () => {
+    if (!restaurant?.id) return;
+
     try {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -49,14 +51,14 @@ export default function Dashboard() {
       const { data: orders, error } = await supabase
         .from('orders')
         .select('*')
-        .eq('restaurant_id', restaurant!.id)
+        .eq('restaurant_id', restaurant.id)
         .gte('created_at', today.toISOString());
 
       if (error) throw error;
 
       const completedOrders = orders?.filter(o => o.status === 'completed') || [];
       const pendingOrders = orders?.filter(o => ['open', 'preparing', 'ready'].includes(o.status)) || [];
-      
+
       const totalSales = completedOrders.reduce((sum, o) => sum + Number(o.total || 0), 0);
       const averageTicket = completedOrders.length > 0 ? totalSales / completedOrders.length : 0;
 
@@ -84,9 +86,9 @@ export default function Dashboard() {
   };
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', { 
-      style: 'currency', 
-      currency: 'BRL' 
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
     }).format(value);
   };
 
@@ -113,30 +115,30 @@ export default function Dashboard() {
   };
 
   const statCards = [
-    { 
-      title: 'Vendas do Dia', 
-      value: formatCurrency(stats.totalSales), 
+    {
+      title: 'Vendas do Dia',
+      value: formatCurrency(stats.totalSales),
       icon: DollarSign,
       color: 'gradient-primary',
       textColor: 'text-primary-foreground',
     },
-    { 
-      title: 'Total de Pedidos', 
-      value: stats.totalOrders.toString(), 
+    {
+      title: 'Total de Pedidos',
+      value: stats.totalOrders.toString(),
       icon: ShoppingBag,
       color: 'bg-info',
       textColor: 'text-info-foreground',
     },
-    { 
-      title: 'Pedidos Pendentes', 
-      value: stats.pendingOrders.toString(), 
+    {
+      title: 'Pedidos Pendentes',
+      value: stats.pendingOrders.toString(),
       icon: Clock,
       color: 'bg-warning',
       textColor: 'text-warning-foreground',
     },
-    { 
-      title: 'Ticket Médio', 
-      value: formatCurrency(stats.averageTicket), 
+    {
+      title: 'Ticket Médio',
+      value: formatCurrency(stats.averageTicket),
       icon: TrendingUp,
       color: 'bg-success',
       textColor: 'text-success-foreground',
@@ -156,8 +158,8 @@ export default function Dashboard() {
               Bem-vindo ao painel do {restaurant?.name}
             </p>
           </div>
-          <Button 
-            size="lg" 
+          <Button
+            size="lg"
             className="gradient-primary btn-bounce shadow-glow"
             onClick={() => navigate('/orders/new')}
           >
@@ -193,8 +195,8 @@ export default function Dashboard() {
               <CardTitle className="text-lg">Ações Rápidas</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="w-full justify-start h-14 text-left"
                 onClick={() => navigate('/orders/new')}
               >
@@ -204,8 +206,8 @@ export default function Dashboard() {
                   <p className="text-xs text-muted-foreground">Criar um pedido</p>
                 </div>
               </Button>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="w-full justify-start h-14 text-left"
                 onClick={() => navigate('/kitchen')}
               >
@@ -215,8 +217,8 @@ export default function Dashboard() {
                   <p className="text-xs text-muted-foreground">Pedidos em preparo</p>
                 </div>
               </Button>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="w-full justify-start h-14 text-left"
                 onClick={() => navigate('/cashier')}
               >
@@ -246,7 +248,7 @@ export default function Dashboard() {
               ) : (
                 <div className="space-y-3">
                   {recentOrders.map((order) => (
-                    <div 
+                    <div
                       key={order.id}
                       className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors cursor-pointer"
                       onClick={() => navigate(`/orders/${order.id}`)}
@@ -257,13 +259,13 @@ export default function Dashboard() {
                         </div>
                         <div>
                           <p className="font-medium">
-                            {order.order_type === 'table' ? `Mesa` : 
-                             order.order_type === 'counter' ? 'Balcão' : 'Delivery'}
+                            {order.order_type === 'table' ? `Mesa` :
+                              order.order_type === 'counter' ? 'Balcão' : 'Delivery'}
                           </p>
                           <p className="text-sm text-muted-foreground">
-                            {new Date(order.created_at).toLocaleTimeString('pt-BR', { 
-                              hour: '2-digit', 
-                              minute: '2-digit' 
+                            {new Date(order.created_at).toLocaleTimeString('pt-BR', {
+                              hour: '2-digit',
+                              minute: '2-digit'
                             })}
                           </p>
                         </div>
