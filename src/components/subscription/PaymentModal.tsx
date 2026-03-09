@@ -11,7 +11,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Copy, Check, Loader2, QrCode } from 'lucide-react';
+import { Copy, Check, Loader2, QrCode, AlertCircle } from 'lucide-react';
 
 interface PaymentModalProps {
     open: boolean;
