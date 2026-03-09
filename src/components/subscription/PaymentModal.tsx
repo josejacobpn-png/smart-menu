@@ -81,88 +81,106 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
 
     return (
         <UIDialog open={open} onOpenChange={onOpenChange}>
-            <UIDialogContent className="sm:max-w-[425px] border-none shadow-2xl overflow-hidden p-0 gap-0">
-                <UIDialogHeader className="p-6 pb-0">
-                    <UIDialogTitle className="flex items-center gap-2 text-xl font-bold">
-                        <div className="w-8 h-8 gradient-primary rounded-lg flex items-center justify-center shadow-soft">
-                            <QrCode className="h-5 w-5 text-white" />
-                        </div>
-                        Pagamento via PIX
-                    </UIDialogTitle>
-                    <UIDialogDescription className="text-slate-500 mt-2">
-                        Scaneie o QR Code ou utilize o código PIX para ativar seu acesso.
-                    </UIDialogDescription>
-                </UIDialogHeader>
+            <UIDialogContent className="sm:max-w-[450px] p-0 overflow-hidden border-none shadow-2xl">
+                <div className="max-h-[85vh] overflow-y-auto custom-scrollbar">
+                    <UIDialogHeader className="p-6 pb-2">
+                        <UIDialogTitle className="flex items-center gap-3 text-2xl font-bold tracking-tight">
+                            <div className="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center shadow-lg transform -rotate-3">
+                                <QrCode className="h-6 w-6 text-white" />
+                            </div>
+                            Pagamento PIX
+                        </UIDialogTitle>
+                        <UIDialogDescription className="text-slate-500 text-sm leading-relaxed pt-2">
+                            Assine por 30 dias e libere todos os recursos do seu Smart Menu instantaneamente.
+                        </UIDialogDescription>
+                    </UIDialogHeader>
 
-                <div className="p-6 space-y-6">
-                    <div className="relative group">
-                        <div className="absolute -inset-1 bg-gradient-to-r from-primary to-orange-400 rounded-3xl blur opacity-10 group-hover:opacity-20 transition duration-500"></div>
-                        <div className="relative bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-3">
-                            <img
-                                src="/images/pix-qrcode.png"
-                                alt="QR Code PIX"
-                                className="w-52 h-52 object-contain"
-                                onError={(e) => {
-                                    // Fallback if image fails
-                                    e.currentTarget.style.display = 'none';
-                                    e.currentTarget.parentElement?.classList.add('bg-slate-50', 'flex-col');
-                                }}
-                            />
-                            <div className="text-[10px] text-slate-400 font-medium uppercase tracking-widest">
-                                Escaneie para pagar
+                    <div className="p-6 space-y-8">
+                        {/* QR Code Section */}
+                        <div className="flex flex-col items-center">
+                            <div className="relative group p-1 bg-gradient-to-br from-primary/20 to-orange-500/20 rounded-[2rem] transition-transform duration-500 hover:scale-[1.02]">
+                                <div className="bg-white p-6 rounded-[1.8rem] shadow-inner border border-slate-50 relative overflow-hidden">
+                                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-orange-400 opacity-20"></div>
+                                    <img
+                                        src="/images/pix-qrcode.png"
+                                        alt="QR Code PIX"
+                                        className="w-48 h-48 object-contain relative z-10 mx-auto"
+                                        onError={(e) => {
+                                            const target = e.currentTarget;
+                                            target.style.display = 'none';
+                                            const parent = target.parentElement;
+                                            if (parent) {
+                                                parent.innerHTML += '<div class="w-48 h-48 flex flex-col items-center justify-center text-slate-300 gap-2"><svg class="w-12 h-12" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg><span class="text-[10px] font-bold uppercase tracking-tighter">Imagem não carregada</span></div>';
+                                            }
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                            <div className="mt-4 flex items-center gap-2 px-4 py-1.5 bg-slate-100 rounded-full border border-slate-200 shadow-sm transition-all hover:bg-slate-200 cursor-default">
+                                <span className="flex h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
+                                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Escaneie para Pagar</span>
                             </div>
                         </div>
-                    </div>
 
-                    <div className="space-y-3">
-                        <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block px-1">
-                            Código Copia e Cola
-                        </label>
-                        <div className="group relative">
-                            <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-xl border border-slate-200 group-hover:border-primary/30 transition-colors">
-                                <code className="text-xs flex-1 truncate font-mono text-slate-600 font-medium">
+                        {/* Copy&Paste Section */}
+                        <div className="space-y-3">
+                            <div className="flex items-center justify-between px-1">
+                                <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest">
+                                    Código Copia e Cola
+                                </label>
+                                {copied && <span className="text-[10px] font-bold text-green-500 animate-in fade-in slide-in-from-right-1">Copiado!</span>}
+                            </div>
+                            <div className="flex items-center gap-2 p-1 bg-slate-100/50 rounded-2xl border-2 border-slate-200/60 transition-all focus-within:border-primary/40 focus-within:ring-4 focus-within:ring-primary/5">
+                                <code className="text-[11px] flex-1 truncate font-mono text-slate-600 font-bold pl-4 py-3">
                                     {pixKey}
                                 </code>
                                 <Button
                                     size="icon"
-                                    variant="ghost"
-                                    className="h-9 w-9 hover:bg-white hover:shadow-sm rounded-lg"
+                                    variant="secondary"
+                                    className="h-10 w-10 shrink-0 bg-white shadow-sm hover:shadow-md hover:bg-white rounded-xl active:scale-90 transition-all"
                                     onClick={handleCopy}
                                 >
-                                    {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4 text-primary" />}
+                                    {copied ? <Check className="h-5 w-5 text-green-500" /> : <Copy className="h-5 w-5 text-primary" />}
                                 </Button>
+                            </div>
+                        </div>
+
+                        {/* Alert Section */}
+                        <div className="relative overflow-hidden p-5 rounded-2xl bg-amber-50/50 border border-amber-100 group">
+                            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-125 transition-transform duration-700">
+                                <Check className="h-12 w-12 text-amber-600" />
+                            </div>
+                            <div className="flex gap-4 relative z-10">
+                                <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
+                                    <AlertCircle className="h-5 w-5 text-amber-600" />
+                                </div>
+                                <div className="space-y-1">
+                                    <p className="text-xs font-bold text-amber-800">Passo Final Obrigatório</p>
+                                    <p className="text-[11px] text-amber-700/80 leading-relaxed font-medium">
+                                        Após realizar o PIX, você <strong>DEVE</strong> clicar no botão abaixo para o sistema liberar o seu acesso agora.
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div className="flex items-start gap-4 p-4 bg-primary/5 rounded-2xl border border-primary/10">
-                        <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
-                            <span className="text-[10px] font-bold text-primary">!</span>
-                        </div>
-                        <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                            <strong className="text-primary block mb-1">Passo importante:</strong>
-                            Após realizar o pagamento, você deve clicar em "Confirmar Pagamento" para liberar seu sistema.
-                        </p>
-                    </div>
+                    <UIDialogFooter className="p-6 pt-2 flex flex-col gap-3 sm:gap-4 sm:flex-row shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)] bg-white relative z-20">
+                        <Button
+                            variant="ghost"
+                            onClick={() => onOpenChange(false)}
+                            className="h-14 font-bold text-slate-400 hover:text-slate-600 order-2 sm:order-1 sm:flex-1"
+                        >
+                            Cancelar
+                        </Button>
+                        <Button
+                            className="h-14 gradient-primary shadow-glow font-extrabold text-lg btn-bounce order-1 sm:order-2 sm:flex-[2]"
+                            onClick={handleManualConfirm}
+                            disabled={loading}
+                        >
+                            {loading ? <Loader2 className="h-6 w-6 animate-spin mr-2" /> : 'Ativar Sistema'}
+                        </Button>
+                    </UIDialogFooter>
                 </div>
-
-                <UIDialogFooter className="p-6 pt-0 flex flex-col sm:flex-row gap-3">
-                    <Button
-                        variant="ghost"
-                        onClick={() => onOpenChange(false)}
-                        className="sm:flex-1 h-12 text-slate-500 font-semibold"
-                    >
-                        Voltar
-                    </Button>
-                    <Button
-                        className="sm:flex-1 h-12 gradient-primary shadow-glow font-bold text-base btn-bounce"
-                        onClick={handleManualConfirm}
-                        disabled={loading}
-                    >
-                        {loading ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
-                        Confirmar Pagamento
-                    </Button>
-                </UIDialogFooter>
             </UIDialogContent>
         </UIDialog>
     );
