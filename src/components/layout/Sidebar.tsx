@@ -17,6 +17,7 @@ import {
   Settings
 } from 'lucide-react';
 import { useState } from 'react';
+import { SubscriptionStatus } from '../subscription/SubscriptionStatus';
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard', roles: ['admin', 'attendant', 'kitchen'] },
@@ -57,6 +58,8 @@ export default function Sidebar() {
           </div>
         </div>
       </div>
+
+      <SubscriptionStatus />
 
       <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
         {filteredMenuItems.map((item) => {

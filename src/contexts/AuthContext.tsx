@@ -20,6 +20,8 @@ interface Restaurant {
   id: string;
   name: string;
   slug: string;
+  trial_ends_at: string | null;
+  subscription_ends_at: string | null;
 }
 
 interface AuthContextType {
@@ -33,6 +35,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   hasRole: (role: 'admin' | 'attendant' | 'kitchen') => boolean;
+  refreshRestaurantData: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -93,7 +96,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (profileData?.restaurant_id) {
         const { data: restaurantData } = await supabase
           .from('restaurants')
-          .select('*')
+          .select('id, name, slug, trial_ends_at, subscription_ends_at')
           .eq('id', profileData.restaurant_id)
           .maybeSingle();
 
@@ -110,6 +113,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.error('Error fetching user data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const refreshRestaurantData = async () => {
+    if (user) {
+      await fetchUserData(user.id);
     }
   };
 
@@ -176,6 +185,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signIn,
       signOut,
       hasRole,
+      refreshRestaurantData,
     }}>
       {children}
     </AuthContext.Provider>
