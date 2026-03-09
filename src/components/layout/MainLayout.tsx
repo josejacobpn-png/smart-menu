@@ -15,13 +15,20 @@ export default function MainLayout({ children }: MainLayoutProps) {
     if (loading || !restaurant) return false;
 
     const now = new Date();
-    const trialEnd = restaurant.trial_ends_at ? parseISO(restaurant.trial_ends_at) : null;
-    const subEnd = restaurant.subscription_ends_at ? parseISO(restaurant.subscription_ends_at) : null;
+    const trialEnd = restaurant.trial_ends_at && typeof restaurant.trial_ends_at === 'string'
+      ? parseISO(restaurant.trial_ends_at)
+      : null;
+    const subEnd = restaurant.subscription_ends_at && typeof restaurant.subscription_ends_at === 'string'
+      ? parseISO(restaurant.subscription_ends_at)
+      : null;
 
     const latestEnd = subEnd || trialEnd;
 
-    if (!latestEnd) return true; // Or handle as not-expired if no dates yet
-    return !isAfter(latestEnd, now);
+    // If no dates are set, we don't block access by default
+    if (!latestEnd) return false;
+
+    // Check if the current date is after the expiration date
+    return isAfter(now, latestEnd);
   }, [restaurant, loading]);
 
   return (
