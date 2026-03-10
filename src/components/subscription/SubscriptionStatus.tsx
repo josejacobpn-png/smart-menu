@@ -28,19 +28,23 @@ export function SubscriptionStatus() {
                 const subEnd = parseDate(restaurant.subscription_ends_at);
                 const trialEnd = parseDate(restaurant.trial_ends_at);
 
-                const targetDate = subEnd || trialEnd;
+                const isTrialValid = trialEnd && trialEnd > now;
+                const isSubValid = subEnd && subEnd > now;
 
-                if (!targetDate || targetDate < now) {
+                if (!isTrialValid && !isSubValid) {
                     setStatus('expired');
                     setTimeLeft(null);
                     return;
                 }
 
+                // Prioriza a assinatura se estiver válida, caso contrário usa o trial
+                const targetDate = isSubValid ? subEnd! : trialEnd!;
+                
                 const days = differenceInDays(targetDate, now);
                 const hours = differenceInHours(targetDate, now) % 24;
 
                 setTimeLeft({ days, hours });
-                setStatus(subEnd ? 'subscription' : 'trial');
+                setStatus(isSubValid ? 'subscription' : 'trial');
             } catch (err) {
                 console.error("Error updating subscription timer:", err);
                 setStatus('expired');

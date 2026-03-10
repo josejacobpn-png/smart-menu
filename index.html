@@ -24,6 +24,19 @@
       }
       window.location.href = window.location.origin + window.location.pathname;
     }
+
+    // Hang detection
+    window.addEventListener('load', function() {
+      setTimeout(function() {
+        const root = document.getElementById('root');
+        if (root && root.innerHTML === "") {
+          const div = document.createElement('div');
+          div.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);color:white;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;font-family:sans-serif;padding:20px;text-align:center;";
+          div.innerHTML = "<h3>O Smart Menu está demorando para iniciar...</h3><p>Isso pode ser causado por cache corrompido em abas normais.</p><button onclick='localStorage.clear();sessionStorage.clear();window.location.href=\"?clear=true\"' style='padding:12px 24px;background:#ea384c;color:white;border:none;border-radius:8px;font-weight:bold;cursor:pointer;margin-top:20px;'>LIMPAR TUDO E REINICIAR</button>";
+          document.body.appendChild(div);
+        }
+      }, 10000);
+    });
   </script>
 </head>
 

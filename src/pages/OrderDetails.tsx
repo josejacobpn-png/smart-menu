@@ -103,7 +103,7 @@ export default function OrderDetails() {
 
   const [cart, setCart] = useState<CartItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [printingOrder, setPrintingOrder] = useState<{ order: any, type: 'kitchen' | 'bar' | 'customer' } | null>(null);
+  const [printingOrder, setPrintingOrder] = useState<{ order: CashierOrder, type: 'kitchen' | 'bar' | 'customer' } | null>(null);
 
   useEffect(() => {
     if (printingOrder) {
@@ -168,12 +168,19 @@ export default function OrderDetails() {
         return;
       }
 
+      const orderData = orderRes.data as any;
       setOrder({
-        ...orderRes.data,
-        table_number: (orderRes.data as any).table?.number
-      });
+        ...orderData,
+        table_number: orderData.table?.number,
+        delivery_fee: orderData.delivery_fee || 0,
+        couvert: orderData.couvert || 0,
+        service_fee: orderData.service_fee || 0,
+        subtotal: orderData.subtotal || 0,
+        total: orderData.total || 0,
+      } as Order);
 
-      const mappedItems: OrderItem[] = itemsRes.data?.map((item: any) => ({
+      const itemsData = itemsRes.data as any[] | null;
+      const mappedItems: OrderItem[] = itemsData?.map((item) => ({
         id: item.id,
         product_id: item.product_id,
         product_name: item.product_name,
@@ -182,7 +189,6 @@ export default function OrderDetails() {
         total_price: item.total_price,
         notes: item.notes,
         category_name: item.product?.category?.name,
-        category_send_to_kitchen: item.product?.category?.send_to_kitchen
       })) || [];
 
       setOrderItems(mappedItems);
@@ -201,7 +207,7 @@ export default function OrderDetails() {
   };
 
   const getStatusInfo = (status: OrderStatus) => {
-    const info: Record<OrderStatus, { label: string; color: string; icon: React.ComponentType<any> }> = {
+    const info: Record<OrderStatus, { label: string; color: string; icon: React.ComponentType<{ className?: string }> }> = {
       open: { label: 'Aberto', color: 'bg-info text-info-foreground', icon: Clock },
       preparing: { label: 'Em preparo', color: 'bg-warning text-warning-foreground', icon: ChefHat },
       ready: { label: 'Pronto', color: 'bg-success text-success-foreground', icon: CheckCircle },

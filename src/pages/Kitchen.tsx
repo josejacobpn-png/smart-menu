@@ -129,12 +129,26 @@ export default function Kitchen() {
           `)
           .eq('order_id', order.id);
 
-        const mappedItems = items?.map((item: any) => ({
+        const itemsData = items as Array<{
+          id: string;
+          product_name: string;
+          quantity: number;
+          notes: string | null;
+          status: string;
+          product?: {
+            category?: {
+              name: string;
+              send_to_kitchen: boolean;
+            }
+          }
+        }> | null;
+
+        const mappedItems: OrderItem[] = itemsData?.map((item) => ({
           id: item.id,
           product_name: item.product_name,
           quantity: item.quantity,
           notes: item.notes,
-          status: item.status || 'pending',
+          status: (item.status as any) || 'pending',
           category_name: item.product?.category?.name,
           category_send_to_kitchen: item.product?.category?.send_to_kitchen
         })) || [];

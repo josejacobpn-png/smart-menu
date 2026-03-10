@@ -71,9 +71,9 @@ export default function Tables() {
           .in('status', ['open', 'preparing', 'ready'])
           .order('created_at', { ascending: false })
           .limit(1)
-          .maybeSingle();
+          .maybeSingle() as any;
 
-        ordersMap[table.id] = orderData;
+        ordersMap[table.id] = orderData as Order | null;
       }
 
       setTableOrders(ordersMap);
@@ -82,10 +82,10 @@ export default function Tables() {
       const { data: employeesData } = await supabase
         .from('employees')
         .select('id, name')
-        .eq('restaurant_id', restaurant!.id);
+        .eq('restaurant_id', restaurant!.id) as any;
 
       const employeesMap: Record<string, string> = {};
-      employeesData?.forEach(emp => {
+      (employeesData as any[])?.forEach(emp => {
         employeesMap[emp.id] = emp.name;
       });
       setEmployees(employeesMap);
@@ -138,7 +138,7 @@ export default function Tables() {
 
       setDialogOpen(false);
       fetchTables();
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error saving table:', error);
       if (error.code === '23505') {
         toast({ title: 'Já existe uma mesa com este número', variant: 'destructive' });

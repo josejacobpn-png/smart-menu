@@ -19,7 +19,7 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
         <p className="text-sm text-muted-foreground animate-pulse">Carregando...</p>
 
         {/* Safety button if stuck */}
-        <div className="pt-8 opacity-0 animate-in fade-in duration-1000 fill-mode-forwards" style={{ animationDelay: '3s' }}>
+        <div className="pt-8">
           <Button
             variant="ghost"
             size="sm"
@@ -28,9 +28,9 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
               sessionStorage.clear();
               window.location.href = '/auth?clear=true';
             }}
-            className="text-[10px] text-muted-foreground/30 hover:text-primary uppercase tracking-widest"
+            className="text-[10px] text-muted-foreground/40 hover:text-primary uppercase tracking-widest"
           >
-            Demorando muito? Clique aqui para reiniciar
+            Demorando muito? Clique aqui para limpar tudo e reiniciar
           </Button>
         </div>
       </div>

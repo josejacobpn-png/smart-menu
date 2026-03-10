@@ -69,7 +69,7 @@ export default function Orders() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setOrders(data || []);
+      setOrders((data as any) || []);
     } catch (error) {
       console.error('Error fetching orders:', error);
     } finally {
@@ -82,7 +82,7 @@ export default function Orders() {
   };
 
   const getStatusInfo = (status: OrderStatus) => {
-    const info: Record<OrderStatus, { label: string; color: string; icon: React.ComponentType<any> }> = {
+    const info: Record<OrderStatus, { label: string; color: string; icon: React.ComponentType<{ className?: string }> }> = {
       open: { label: 'Aberto', color: 'bg-info text-info-foreground', icon: Clock },
       preparing: { label: 'Em preparo', color: 'bg-warning text-warning-foreground', icon: ChefHat },
       ready: { label: 'Pronto', color: 'bg-success text-success-foreground', icon: CheckCircle },

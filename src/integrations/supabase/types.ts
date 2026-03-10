@@ -21,6 +21,7 @@ export type Database = {
           id: string
           name: string
           restaurant_id: string
+          send_to_kitchen: boolean | null
           sort_order: number | null
           updated_at: string
         }
@@ -30,6 +31,7 @@ export type Database = {
           id?: string
           name: string
           restaurant_id: string
+          send_to_kitchen?: boolean | null
           sort_order?: number | null
           updated_at?: string
         }
@@ -39,12 +41,45 @@ export type Database = {
           id?: string
           name?: string
           restaurant_id?: string
+          send_to_kitchen?: boolean | null
           sort_order?: number | null
           updated_at?: string
         }
         Relationships: [
           {
             foreignKeyName: "categories_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      employees: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          restaurant_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          restaurant_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          restaurant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employees_restaurant_id_fkey"
             columns: ["restaurant_id"]
             isOneToOne: false
             referencedRelation: "restaurants"
@@ -61,6 +96,8 @@ export type Database = {
           product_id: string | null
           product_name: string
           quantity: number
+          restaurant_id: string
+          status: string | null
           total_price: number
           unit_price: number
         }
@@ -72,6 +109,8 @@ export type Database = {
           product_id?: string | null
           product_name: string
           quantity?: number
+          restaurant_id: string
+          status?: string | null
           total_price: number
           unit_price: number
         }
@@ -83,6 +122,8 @@ export type Database = {
           product_id?: string | null
           product_name?: string
           quantity?: number
+          restaurant_id?: string
+          status?: string | null
           total_price?: number
           unit_price?: number
         }

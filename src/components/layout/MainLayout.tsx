@@ -1,9 +1,16 @@
-import { ReactNode, useMemo } from 'react';
+import { ReactNode, useMemo, Suspense } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import { useAuth } from '@/contexts/AuthContext';
 import { ExpiredBlocker } from '../subscription/ExpiredBlocker';
 import { parseISO, isAfter } from 'date-fns';
+import { Loader2 } from 'lucide-react';
+
+const PageLoading = () => (
+  <div className="flex items-center justify-center p-12">
+    <Loader2 className="h-8 w-8 animate-spin text-primary/30" />
+  </div>
+);
 
 interface MainLayoutProps {
   children?: ReactNode;
@@ -31,10 +38,14 @@ export default function MainLayout({ children }: MainLayoutProps) {
       const trialEnd = parseDate(restaurant.trial_ends_at);
       const subEnd = parseDate(restaurant.subscription_ends_at);
 
-      const latestEnd = subEnd || trialEnd;
+      const isTrialValid = trialEnd ? isAfter(trialEnd, now) : false;
+      const isSubValid = subEnd ? isAfter(subEnd, now) : false;
 
-      if (!latestEnd) return false;
-      return isAfter(now, latestEnd);
+      // O restaurante NÃO está expirado se o teste OU a assinatura estiverem válidos
+      // Se não houver data de término, assumimos que não expirou (ou ainda não foi definido)
+      if (!trialEnd && !subEnd) return false;
+
+      return !(isTrialValid || isSubValid);
     } catch (err) {
       console.error("Error in expiration check:", err);
       return false; // Safely allow access on error
@@ -47,7 +58,9 @@ export default function MainLayout({ children }: MainLayoutProps) {
       {isExpired && <ExpiredBlocker />}
       <main className="lg:pl-72 pt-16 lg:pt-0 min-h-screen w-full max-w-[100vw] overflow-x-hidden">
         <div className="p-4 lg:p-6 mx-auto w-full max-w-full">
-          {children || <Outlet />}
+          <Suspense fallback={<PageLoading />}>
+            {children || <Outlet />}
+          </Suspense>
         </div>
       </main>
     </div>
