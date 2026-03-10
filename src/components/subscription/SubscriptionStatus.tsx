@@ -19,7 +19,7 @@ export function SubscriptionStatus() {
             try {
                 const now = new Date();
 
-                const parseDate = (val: any) => {
+                const parseDate = (val: string | null | undefined) => {
                     if (!val || typeof val !== 'string') return null;
                     const d = parseISO(val);
                     return isNaN(d.getTime()) ? null : d;
@@ -63,7 +63,7 @@ export function SubscriptionStatus() {
             <div className="flex flex-col gap-2">
                 <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/60">
-                        {status === 'trial' ? 'Período de Teste' : status === 'subscription' ? 'Assinatura' : 'Expirado'}
+                        {status === 'trial' ? 'Período de Teste' : status === 'subscription' ? 'Assinatura' : status === 'loading' ? 'Carregando' : 'Expirado'}
                     </span>
                     {status === 'expired' ? (
                         <Badge variant="destructive" className="animate-pulse">Bloqueado</Badge>
