@@ -128,7 +128,7 @@ export default function Cashier() {
     return labels[type] || type;
   };
 
-  const paymentMethods: { value: PaymentMethod; label: string; icon: React.ComponentType<any> }[] = [
+  const paymentMethods: { value: PaymentMethod; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
     { value: 'cash', label: 'Dinheiro', icon: Banknote },
     { value: 'pix', label: 'PIX', icon: Smartphone },
     { value: 'credit_card', label: 'Crédito', icon: CreditCard },
@@ -407,6 +407,5 @@ export default function Cashier() {
         />
       )}
     </div >
-    </>
   );
 }

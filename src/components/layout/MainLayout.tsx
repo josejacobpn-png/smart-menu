@@ -18,7 +18,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
     try {
       const now = new Date();
 
-      const parseDate = (val: any) => {
+      const parseDate = (val: string | null | undefined) => {
         if (!val || typeof val !== 'string') return null;
         try {
           const d = parseISO(val);
