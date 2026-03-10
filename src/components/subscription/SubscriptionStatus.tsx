@@ -51,7 +51,7 @@ export function SubscriptionStatus() {
         updateTimer();
         const interval = setInterval(updateTimer, 60000); // Update every minute
         return () => clearInterval(interval);
-    }, [restaurant]);
+    }, [restaurant?.id, restaurant?.subscription_ends_at, restaurant?.trial_ends_at]);
 
 
     if (!restaurant) return null;

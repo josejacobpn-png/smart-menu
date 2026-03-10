@@ -105,7 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, [profile]); // Include profile to react to it being missing on SIGNED_IN
+  }, []);
 
   const fetchUserData = async (userId: string) => {
     try {
