@@ -146,9 +146,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         if (rolesError) console.error('Roles fetch error:', rolesError);
         setUserRoles(rolesData as UserRole[] || []);
+      } else if (!profileData && userId) {
+        // If we have a user from auth but no profile, the account might be in a broken state
+        // or partially deleted. Force a sign out to clear stale local state.
+        console.warn('User has session but no profile found. Clearing session.');
+        await supabase.auth.signOut();
+        setSession(null);
+        setUser(null);
       }
     } catch (error) {
       console.error('Error in fetchUserData:', error);
+      // If we hit a network error or similar, ensure we don't stay in loading forever
+      setLoading(false);
     } finally {
       clearTimeout(timeoutId);
       setLoading(false);

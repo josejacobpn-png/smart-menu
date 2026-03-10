@@ -41,63 +41,63 @@ export default function Sidebar() {
     item.roles.some(role => hasRole(role as 'admin' | 'attendant' | 'kitchen'))
   );
 
-  const NavContent = () => (
-    <>
-      <div className="p-4 border-b border-sidebar-border">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center">
-            <UtensilsCrossed className="h-5 w-5 text-primary-foreground" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <h2 className="font-semibold text-sidebar-foreground truncate">
-              {restaurant?.name || 'Smart Menu'}
-            </h2>
-            <p className="text-xs text-sidebar-foreground/70 truncate">
-              {profile?.full_name}
-            </p>
-          </div>
+  const navLinks = (
+    <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+      {filteredMenuItems.map((item) => {
+        const isActive = location.pathname === item.path;
+        return (
+          <Link
+            key={item.path}
+            to={item.path}
+            onClick={() => setMobileOpen(false)}
+            className={cn(
+              'flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200',
+              isActive
+                ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-md'
+                : 'text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+            )}
+          >
+            <item.icon className="h-5 w-5 flex-shrink-0" />
+            <span>{item.label}</span>
+          </Link>
+        );
+      })}
+    </nav>
+  );
+
+  const sidebarHeader = (
+    <div className="p-4 border-b border-sidebar-border">
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center">
+          <UtensilsCrossed className="h-5 w-5 text-primary-foreground" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h2 className="font-semibold text-sidebar-foreground truncate">
+            {restaurant?.name || 'Smart Menu'}
+          </h2>
+          <p className="text-xs text-sidebar-foreground/70 truncate">
+            {profile?.full_name}
+          </p>
         </div>
       </div>
+    </div>
+  );
 
-      <SubscriptionStatus />
-
-      <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-        {filteredMenuItems.map((item) => {
-          const isActive = location.pathname === item.path;
-          return (
-            <Link
-              key={item.path}
-              to={item.path}
-              onClick={() => setMobileOpen(false)}
-              className={cn(
-                'flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200',
-                isActive
-                  ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-md'
-                  : 'text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
-              )}
-            >
-              <item.icon className="h-5 w-5 flex-shrink-0" />
-              <span>{item.label}</span>
-            </Link>
-          );
-        })}
-      </nav>
-
-      <div className="p-3 border-t border-sidebar-border space-y-2">
-        <div className="flex items-center justify-between px-2">
-          <span className="text-sm font-medium text-sidebar-foreground/80">Tema</span>
-          <ModeToggle />
-        </div>
-        <Button
-          variant="ghost"
-          onClick={() => signOut()}
-          className="w-full justify-start gap-3 text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent"
-        >
-          <LogOut className="h-5 w-5" />
-          <span>Sair</span>
-        </Button>
+  const sidebarFooter = (
+    <div className="p-3 border-t border-sidebar-border space-y-2">
+      <div className="flex items-center justify-between px-2">
+        <span className="text-sm font-medium text-sidebar-foreground/80">Tema</span>
+        <ModeToggle />
       </div>
-    </>
+      <Button
+        variant="ghost"
+        onClick={() => signOut()}
+        className="w-full justify-start gap-3 text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent"
+      >
+        <LogOut className="h-5 w-5" />
+        <span>Sair</span>
+      </Button>
+    </div>
   );
 
   return (
@@ -138,12 +138,18 @@ export default function Sidebar() {
         'lg:hidden fixed left-0 top-16 bottom-0 w-72 bg-sidebar z-50 flex flex-col transition-transform duration-300',
         mobileOpen ? 'translate-x-0' : '-translate-x-full'
       )}>
-        <NavContent />
+        {sidebarHeader}
+        <SubscriptionStatus />
+        {navLinks}
+        {sidebarFooter}
       </aside>
 
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex fixed left-0 top-0 bottom-0 w-72 bg-sidebar flex-col shadow-xl z-30">
-        <NavContent />
+        {sidebarHeader}
+        <SubscriptionStatus />
+        {navLinks}
+        {sidebarFooter}
       </aside>
     </>
   );

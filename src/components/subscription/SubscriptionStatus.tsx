@@ -10,7 +10,7 @@ export function SubscriptionStatus() {
     const { restaurant, hasRole } = useAuth();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [timeLeft, setTimeLeft] = useState<{ days: number; hours: number } | null>(null);
-    const [status, setStatus] = useState<'trial' | 'subscription' | 'expired'>('expired');
+    const [status, setStatus] = useState<'trial' | 'subscription' | 'expired' | 'loading'>('loading');
 
     useEffect(() => {
         if (!restaurant) return;
@@ -67,6 +67,8 @@ export function SubscriptionStatus() {
                     </span>
                     {status === 'expired' ? (
                         <Badge variant="destructive" className="animate-pulse">Bloqueado</Badge>
+                    ) : status === 'loading' ? (
+                        <Badge variant="outline" className="animate-pulse">...</Badge>
                     ) : isWarning ? (
                         <Badge variant="outline" className="border-orange-500 text-orange-500 flex gap-1">
                             <Clock className="h-3 w-3" /> Expirando
@@ -85,9 +87,11 @@ export function SubscriptionStatus() {
                     <span className="text-sm font-medium text-sidebar-foreground">
                         {status === 'expired'
                             ? 'Acesso limitado'
-                            : timeLeft
-                                ? `${timeLeft.days}d ${timeLeft.hours}h restantes`
-                                : 'Processando...'}
+                            : status === 'loading'
+                                ? 'Carregando...'
+                                : timeLeft
+                                    ? `${timeLeft.days}d ${timeLeft.hours}h restantes`
+                                    : 'Processando...'}
                     </span>
                 </div>
 
