@@ -102,7 +102,7 @@ export function PaymentModal({ open, onOpenChange }: PaymentModalProps) {
                                 <div className="bg-white p-6 rounded-[1.8rem] shadow-inner border border-slate-50 relative overflow-hidden">
                                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-orange-400 opacity-20"></div>
                                     <img
-                                        src="/images/pix-qrcode.png"
+                                        src="/images/pix-qrcode.jpg"
                                         alt="QR Code PIX"
                                         className="w-48 h-48 object-contain relative z-10 mx-auto"
                                         onError={(e) => {
