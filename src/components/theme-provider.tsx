@@ -25,9 +25,14 @@ export function ThemeProvider({
     defaultTheme = "system",
     storageKey = "vite-ui-theme",
 }: ThemeProviderProps) {
-    const [theme, setTheme] = useState<Theme>(
-        () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
-    )
+    const [theme, setTheme] = useState<Theme>(() => {
+        try {
+            return (localStorage.getItem(storageKey) as Theme) || defaultTheme;
+        } catch (e) {
+            console.error("Erro ao acessar localStorage no ThemeProvider:", e);
+            return defaultTheme;
+        }
+    })
 
     useEffect(() => {
         const root = window.document.documentElement

@@ -11,6 +11,32 @@
     <meta property="og:title" content="Smart Menu" />
     <meta property="og:description" content="Sistema de Gestão para Restaurantes" />
     <meta property="og:type" content="website" />
+    <script>
+      // Global error tracker to catch "White Screen" causes
+      window.onerror = function(msg, url, line, col, error) {
+        const errorMsg = "FALHA CRÍTICA DETECTADA:\\n" + msg + "\\nArquivo: " + url + ":" + line;
+        console.error(errorMsg, error);
+        // We use alert because it stops execution and is visible even if UI is dead
+        if (!window.errorAlertShown) {
+          alert(errorMsg + "\\n\\nTente abrir com ?clear=true no final da URL para resetar.");
+          window.errorAlertShown = true;
+        }
+      };
+
+      // Hard reset utility via URL: ?clear=true
+      if (window.location.search.includes('clear=true')) {
+        localStorage.clear();
+        sessionStorage.clear();
+        // Unregister service workers if any
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then(function(registrations) {
+            for(let registration of registrations) { registration.unregister(); }
+          });
+        }
+        alert('Cache e dados locais limpos com sucesso! Recarregando...');
+        window.location.href = window.location.origin + window.location.pathname;
+      }
+    </script>
   </head>
 
   <body>
