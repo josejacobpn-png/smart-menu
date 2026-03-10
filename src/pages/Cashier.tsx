@@ -406,6 +406,6 @@ export default function Cashier() {
           restaurantName={restaurant?.name}
         />
       )}
-    </div >
+    </>
   );
 }
