@@ -84,16 +84,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUserRoles([]);
           setRestaurant(null);
           setLoading(false);
-        } else {
+        } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
           setSession(currentSession);
           setUser(currentSession?.user ?? null);
 
           if (currentSession?.user) {
-            // Only fetch if we don't have the profile yet or if it's a significant event
-            if (!profile || event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+            // Background update - only show loading on first SIGNED_IN if profile missing
+            if (event === 'SIGNED_IN' && !profile) {
               setLoading(true);
-              await fetchUserData(currentSession.user.id);
             }
+            await fetchUserData(currentSession.user.id);
           } else {
             setLoading(false);
           }
@@ -105,7 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, []);
+  }, [profile]); // Include profile to react to it being missing on SIGNED_IN
 
   const fetchUserData = async (userId: string) => {
     try {
