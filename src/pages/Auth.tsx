@@ -116,25 +116,10 @@ export default function Auth() {
             </Button>
           </form>
 
-          <div className="mt-6 text-center space-y-2">
-            <div>
-              <Button variant="link" onClick={() => navigate('/admin-login')} className="text-muted-foreground text-xs">
-                Acesso Restrito (ADMIN)
-              </Button>
-            </div>
-            <div>
-              <Button
-                variant="ghost"
-                onClick={() => {
-                  localStorage.clear();
-                  sessionStorage.clear();
-                  window.location.reload();
-                }}
-                className="text-[10px] text-muted-foreground/50 hover:text-primary uppercase tracking-widest font-bold"
-              >
-                Problemas ao entrar? Limpar Cache
-              </Button>
-            </div>
+          <div className="mt-6 text-center">
+            <Button variant="link" onClick={() => navigate('/admin-login')} className="text-muted-foreground text-xs">
+              Acesso Restrito (ADMIN)
+            </Button>
           </div>
         </CardContent>
       </Card>

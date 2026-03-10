@@ -54,19 +54,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const initializeAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session: initialSession } } = await supabase.auth.getSession();
         if (!mounted) return;
 
-        setSession(session);
-        setUser(session?.user ?? null);
+        setSession(initialSession);
+        setUser(initialSession?.user ?? null);
 
-        if (session?.user) {
-          await fetchUserData(session.user.id);
+        if (initialSession?.user) {
+          await fetchUserData(initialSession.user.id);
         } else {
           setLoading(false);
         }
       } catch (error) {
-        console.error('Initial session fetch error:', error);
+        console.error('Auth initialization error:', error);
         if (mounted) setLoading(false);
       }
     };
@@ -77,8 +77,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       async (event, currentSession) => {
         if (!mounted) return;
 
-        // Only trigger full update if the session/user actually changed
-        // or during specific events like SIGNED_IN
         if (event === 'SIGNED_OUT') {
           setSession(null);
           setUser(null);
@@ -86,12 +84,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUserRoles([]);
           setRestaurant(null);
           setLoading(false);
-        } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+        } else {
           setSession(currentSession);
           setUser(currentSession?.user ?? null);
+
           if (currentSession?.user) {
-            setLoading(true);
-            await fetchUserData(currentSession.user.id);
+            // Only fetch if we don't have the profile yet or if it's a significant event
+            if (!profile || event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+              setLoading(true);
+              await fetchUserData(currentSession.user.id);
+            }
+          } else {
+            setLoading(false);
           }
         }
       }
