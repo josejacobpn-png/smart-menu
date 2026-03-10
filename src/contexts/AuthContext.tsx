@@ -89,10 +89,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUser(currentSession?.user ?? null);
 
           if (currentSession?.user) {
-            // Background update - only show loading on first SIGNED_IN if profile missing
-            if (event === 'SIGNED_IN' && !profile) {
-              setLoading(true);
-            }
+            // For background refreshes, don't show loading spinner if we already have a profile
+            // Use a simple local variable or check current state to decide
             await fetchUserData(currentSession.user.id);
           } else {
             setLoading(false);
@@ -105,7 +103,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, []);
+  }, []); // Dependencies MUST be empty to avoid infinite loops with profile/restaurant updates
 
   const fetchUserData = async (userId: string) => {
     try {
