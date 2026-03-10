@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import MainLayout from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -259,253 +258,251 @@ export default function NewOrder() {
   };
 
   return (
-    <MainLayout>
-      <div className="space-y-6 pb-40 lg:pb-0">
-        {/* Header */}
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/orders')}>
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div>
-            <h1 className="text-2xl lg:text-3xl font-bold">Novo Pedido</h1>
-            <p className="text-muted-foreground">Adicione itens ao pedido</p>
-          </div>
+    <div className="space-y-6 pb-40 lg:pb-0">
+      {/* Header */}
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" onClick={() => navigate('/orders')}>
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+        <div>
+          <h1 className="text-2xl lg:text-3xl font-bold">Novo Pedido</h1>
+          <p className="text-muted-foreground">Adicione itens ao pedido</p>
         </div>
+      </div>
 
-        <div className="grid lg:grid-cols-3 gap-6">
-          {/* Products Section */}
-          <div className="lg:col-span-2 space-y-4 min-w-0 overflow-hidden lg:overflow-visible">
-            {/* Order Type */}
-            <Card>
-              <CardContent className="p-4">
-                <Tabs value={orderType} onValueChange={(v) => setOrderType(v as typeof orderType)}>
-                  <div className="w-full overflow-hidden">
-                    <TabsList className="flex w-full overflow-x-auto scrollbar-hide">
-                      <TabsTrigger value="counter" className="flex-1 min-w-[80px]">Balcão</TabsTrigger>
-                      <TabsTrigger value="table" className="flex-1 min-w-[80px]">Mesa</TabsTrigger>
-                      <TabsTrigger value="delivery" className="flex-1 min-w-[80px]">Delivery</TabsTrigger>
-                    </TabsList>
+      <div className="grid lg:grid-cols-3 gap-6">
+        {/* Products Section */}
+        <div className="lg:col-span-2 space-y-4 min-w-0 overflow-hidden lg:overflow-visible">
+          {/* Order Type */}
+          <Card>
+            <CardContent className="p-4">
+              <Tabs value={orderType} onValueChange={(v) => setOrderType(v as typeof orderType)}>
+                <div className="w-full overflow-hidden">
+                  <TabsList className="flex w-full overflow-x-auto scrollbar-hide">
+                    <TabsTrigger value="counter" className="flex-1 min-w-[80px]">Balcão</TabsTrigger>
+                    <TabsTrigger value="table" className="flex-1 min-w-[80px]">Mesa</TabsTrigger>
+                    <TabsTrigger value="delivery" className="flex-1 min-w-[80px]">Delivery</TabsTrigger>
+                  </TabsList>
+                </div>
+              </Tabs>
+
+              {orderType === 'table' && (
+                <div className="mt-4">
+                  <Label>Selecione a mesa</Label>
+                  <Select value={selectedTable} onValueChange={setSelectedTable}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Escolha uma mesa" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {tables.filter(t => t.status === 'free').map((table) => (
+                        <SelectItem key={table.id} value={table.id}>
+                          Mesa {table.number}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              {orderType === 'table' && (
+                <div className="mt-4">
+                  <Label>Atendente / Garçom</Label>
+                  <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o atendente" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {employees.map((emp) => (
+                        <SelectItem key={emp.id} value={emp.id}>
+                          {emp.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              {orderType === 'delivery' && (
+                <div className="mt-4 space-y-3">
+                  <div>
+                    <Label>Nome do cliente</Label>
+                    <Input
+                      value={customerName}
+                      onChange={(e) => setCustomerName(e.target.value)}
+                      placeholder="Nome do cliente"
+                    />
                   </div>
-                </Tabs>
-
-                {orderType === 'table' && (
-                  <div className="mt-4">
-                    <Label>Selecione a mesa</Label>
-                    <Select value={selectedTable} onValueChange={setSelectedTable}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Escolha uma mesa" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {tables.filter(t => t.status === 'free').map((table) => (
-                          <SelectItem key={table.id} value={table.id}>
-                            Mesa {table.number}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                  <div>
+                    <Label>Telefone</Label>
+                    <Input
+                      value={customerPhone}
+                      onChange={(e) => setCustomerPhone(e.target.value)}
+                      placeholder="(00) 00000-0000"
+                    />
                   </div>
-                )}
-
-                {orderType === 'table' && (
-                  <div className="mt-4">
-                    <Label>Atendente / Garçom</Label>
-                    <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione o atendente" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {employees.map((emp) => (
-                          <SelectItem key={emp.id} value={emp.id}>
-                            {emp.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                  <div>
+                    <Label>Endereço de entrega</Label>
+                    <Textarea
+                      value={deliveryAddress}
+                      onChange={(e) => setDeliveryAddress(e.target.value)}
+                      placeholder="Endereço completo"
+                    />
                   </div>
-                )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
-                {orderType === 'delivery' && (
-                  <div className="mt-4 space-y-3">
-                    <div>
-                      <Label>Nome do cliente</Label>
-                      <Input
-                        value={customerName}
-                        onChange={(e) => setCustomerName(e.target.value)}
-                        placeholder="Nome do cliente"
-                      />
-                    </div>
-                    <div>
-                      <Label>Telefone</Label>
-                      <Input
-                        value={customerPhone}
-                        onChange={(e) => setCustomerPhone(e.target.value)}
-                        placeholder="(00) 00000-0000"
-                      />
-                    </div>
-                    <div>
-                      <Label>Endereço de entrega</Label>
-                      <Textarea
-                        value={deliveryAddress}
-                        onChange={(e) => setDeliveryAddress(e.target.value)}
-                        placeholder="Endereço completo"
-                      />
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Categories */}
-            <div className="w-full overflow-hidden">
-              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+          {/* Categories */}
+          <div className="w-full overflow-hidden">
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+              <Button
+                variant={selectedCategory === null ? 'default' : 'outline'}
+                onClick={() => setSelectedCategory(null)}
+                className="flex-shrink-0"
+              >
+                Todos
+              </Button>
+              {categories.map((cat) => (
                 <Button
-                  variant={selectedCategory === null ? 'default' : 'outline'}
-                  onClick={() => setSelectedCategory(null)}
+                  key={cat.id}
+                  variant={selectedCategory === cat.id ? 'default' : 'outline'}
+                  onClick={() => setSelectedCategory(cat.id)}
                   className="flex-shrink-0"
                 >
-                  Todos
+                  {cat.name}
                 </Button>
-                {categories.map((cat) => (
-                  <Button
-                    key={cat.id}
-                    variant={selectedCategory === cat.id ? 'default' : 'outline'}
-                    onClick={() => setSelectedCategory(cat.id)}
-                    className="flex-shrink-0"
-                  >
-                    {cat.name}
-                  </Button>
-                ))}
-              </div>
-            </div>
-
-            {/* Products Grid */}
-            <div className="grid grid-cols-1 min-[400px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-              {filteredProducts.map((product) => (
-                <Card
-                  key={product.id}
-                  className="card-hover cursor-pointer"
-                  onClick={() => addToCart(product)}
-                >
-                  <CardContent className="p-3">
-                    <h3 className="font-medium text-sm line-clamp-2">{product.name}</h3>
-                    <p className="text-primary font-bold mt-2">
-                      {formatCurrency(product.price)}
-                    </p>
-                  </CardContent>
-                </Card>
               ))}
             </div>
           </div>
 
-          {/* Cart Section */}
-          <div className="lg:col-span-1">
-            <Card className="sticky top-4">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <ShoppingCart className="h-5 w-5" />
-                  Carrinho
-                  {cart.length > 0 && (
-                    <Badge variant="secondary">{cart.length}</Badge>
-                  )}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {cart.length === 0 ? (
-                  <p className="text-center text-muted-foreground py-8">
-                    Carrinho vazio
+          {/* Products Grid */}
+          <div className="grid grid-cols-1 min-[400px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+            {filteredProducts.map((product) => (
+              <Card
+                key={product.id}
+                className="card-hover cursor-pointer"
+                onClick={() => addToCart(product)}
+              >
+                <CardContent className="p-3">
+                  <h3 className="font-medium text-sm line-clamp-2">{product.name}</h3>
+                  <p className="text-primary font-bold mt-2">
+                    {formatCurrency(product.price)}
                   </p>
-                ) : (
-                  <div className="space-y-4">
-                    <div className="space-y-3 max-h-[400px] overflow-y-auto">
-                      {cart.map((item) => (
-                        <div key={item.product.id} className="border rounded-lg p-3 space-y-2">
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                              <p className="font-medium text-sm">{item.product.name}</p>
-                              <p className="text-sm text-muted-foreground">
-                                {formatCurrency(item.product.price)} cada
-                              </p>
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 text-destructive"
-                              onClick={() => removeFromCart(item.product.id)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                className="h-8 w-8"
-                                onClick={() => updateQuantity(item.product.id, -1)}
-                              >
-                                <Minus className="h-4 w-4" />
-                              </Button>
-                              <span className="w-8 text-center font-medium">
-                                {item.quantity}
-                              </span>
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                className="h-8 w-8"
-                                onClick={() => updateQuantity(item.product.id, 1)}
-                              >
-                                <Plus className="h-4 w-4" />
-                              </Button>
-                            </div>
-                            <p className="font-bold">
-                              {formatCurrency(item.product.price * item.quantity)}
-                            </p>
-                          </div>
-
-                          <Input
-                            placeholder="Observações (ex: sem cebola)"
-                            value={item.notes}
-                            onChange={(e) => updateItemNotes(item.product.id, e.target.value)}
-                            className="text-sm"
-                          />
-                        </div>
-                      ))}
-                    </div>
-
-                    <div>
-                      <Label>Observações do pedido</Label>
-                      <Textarea
-                        value={orderNotes}
-                        onChange={(e) => setOrderNotes(e.target.value)}
-                        placeholder="Observações gerais"
-                        className="mt-1"
-                      />
-                    </div>
-
-                  </div>
-                )}
-
-                <div className="fixed bottom-0 left-0 right-0 p-4 pb-8 bg-background border-t shadow-[0_-4px_10px_rgba(0,0,0,0.1)] z-50 lg:static lg:p-0 lg:pb-0 lg:bg-transparent lg:border-none lg:shadow-none lg:z-auto">
-                  <div className="flex items-center justify-between text-lg font-bold mb-3 lg:pt-4 lg:border-t">
-                    <span>Total {cart.length > 0 && `(${cart.length} itens)`}</span>
-                    <span className="text-primary">{formatCurrency(cartTotal)}</span>
-                  </div>
-
-                  <Button
-                    className="w-full gradient-primary btn-bounce"
-                    size="lg"
-                    onClick={saveOrder}
-                    disabled={saving || cart.length === 0}
-                  >
-                    {saving ? 'Salvando...' : 'Confirmar Pedido'}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
+
+        {/* Cart Section */}
+        <div className="lg:col-span-1">
+          <Card className="sticky top-4">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ShoppingCart className="h-5 w-5" />
+                Carrinho
+                {cart.length > 0 && (
+                  <Badge variant="secondary">{cart.length}</Badge>
+                )}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {cart.length === 0 ? (
+                <p className="text-center text-muted-foreground py-8">
+                  Carrinho vazio
+                </p>
+              ) : (
+                <div className="space-y-4">
+                  <div className="space-y-3 max-h-[400px] overflow-y-auto">
+                    {cart.map((item) => (
+                      <div key={item.product.id} className="border rounded-lg p-3 space-y-2">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <p className="font-medium text-sm">{item.product.name}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {formatCurrency(item.product.price)} cada
+                            </p>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-destructive"
+                            onClick={() => removeFromCart(item.product.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => updateQuantity(item.product.id, -1)}
+                            >
+                              <Minus className="h-4 w-4" />
+                            </Button>
+                            <span className="w-8 text-center font-medium">
+                              {item.quantity}
+                            </span>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => updateQuantity(item.product.id, 1)}
+                            >
+                              <Plus className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          <p className="font-bold">
+                            {formatCurrency(item.product.price * item.quantity)}
+                          </p>
+                        </div>
+
+                        <Input
+                          placeholder="Observações (ex: sem cebola)"
+                          value={item.notes}
+                          onChange={(e) => updateItemNotes(item.product.id, e.target.value)}
+                          className="text-sm"
+                        />
+                      </div>
+                    ))}
+                  </div>
+
+                  <div>
+                    <Label>Observações do pedido</Label>
+                    <Textarea
+                      value={orderNotes}
+                      onChange={(e) => setOrderNotes(e.target.value)}
+                      placeholder="Observações gerais"
+                      className="mt-1"
+                    />
+                  </div>
+
+                </div>
+              )}
+
+              <div className="fixed bottom-0 left-0 right-0 p-4 pb-8 bg-background border-t shadow-[0_-4px_10px_rgba(0,0,0,0.1)] z-50 lg:static lg:p-0 lg:pb-0 lg:bg-transparent lg:border-none lg:shadow-none lg:z-auto">
+                <div className="flex items-center justify-between text-lg font-bold mb-3 lg:pt-4 lg:border-t">
+                  <span>Total {cart.length > 0 && `(${cart.length} itens)`}</span>
+                  <span className="text-primary">{formatCurrency(cartTotal)}</span>
+                </div>
+
+                <Button
+                  className="w-full gradient-primary btn-bounce"
+                  size="lg"
+                  onClick={saveOrder}
+                  disabled={saving || cart.length === 0}
+                >
+                  {saving ? 'Salvando...' : 'Confirmar Pedido'}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
-    </MainLayout >
+    </div>
   );
 }

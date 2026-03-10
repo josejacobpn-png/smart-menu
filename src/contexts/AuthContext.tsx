@@ -106,6 +106,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []); // Dependencies MUST be empty to avoid infinite loops with profile/restaurant updates
 
   const fetchUserData = async (userId: string) => {
+    // Set a safety timeout to prevent infinite loading
+    const timeoutId = setTimeout(() => {
+      console.warn('User data fetch timeout - disabling loading state');
+      setLoading(false);
+    }, 10000);
+
     try {
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
@@ -113,28 +119,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .eq('id', userId)
         .maybeSingle();
 
-      if (profileError) throw profileError;
+      if (profileError) {
+        console.error('Profile fetch error:', profileError);
+        // If we can't even fetch the profile, something is wrong with the session
+        // but we should still let the app continue (it will redirect to auth)
+        setLoading(false);
+        return;
+      }
+
       setProfile(profileData);
 
       if (profileData?.restaurant_id) {
-        const { data: restaurantData } = await supabase
+        const { data: restaurantData, error: restaurantError } = await supabase
           .from('restaurants')
           .select('id, name, slug, trial_ends_at, subscription_ends_at')
           .eq('id', profileData.restaurant_id)
           .maybeSingle();
 
+        if (restaurantError) console.error('Restaurant fetch error:', restaurantError);
         setRestaurant(restaurantData);
 
-        const { data: rolesData } = await supabase
+        const { data: rolesData, error: rolesError } = await supabase
           .from('user_roles')
           .select('role, restaurant_id')
           .eq('user_id', userId);
 
+        if (rolesError) console.error('Roles fetch error:', rolesError);
         setUserRoles(rolesData as UserRole[] || []);
       }
     } catch (error) {
-      console.error('Error fetching user data:', error);
+      console.error('Error in fetchUserData:', error);
     } finally {
+      clearTimeout(timeoutId);
       setLoading(false);
     }
   };

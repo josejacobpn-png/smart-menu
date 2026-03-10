@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import MainLayout from '@/components/layout/MainLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -132,7 +131,7 @@ export default function Employees() {
     };
 
     return (
-        <MainLayout>
+        <>
             <div className="space-y-6">
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -253,6 +252,6 @@ export default function Employees() {
                     </div>
                 </DialogContent>
             </Dialog>
-        </MainLayout>
+        </>
     );
 }

@@ -1,11 +1,12 @@
 import { ReactNode, useMemo } from 'react';
+import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import { useAuth } from '@/contexts/AuthContext';
 import { ExpiredBlocker } from '../subscription/ExpiredBlocker';
 import { parseISO, isAfter } from 'date-fns';
 
 interface MainLayoutProps {
-  children: ReactNode;
+  children?: ReactNode;
 }
 
 export default function MainLayout({ children }: MainLayoutProps) {
@@ -46,7 +47,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
       {isExpired && <ExpiredBlocker />}
       <main className="lg:pl-72 pt-16 lg:pt-0 min-h-screen w-full max-w-[100vw] overflow-x-hidden">
         <div className="p-4 lg:p-6 mx-auto w-full max-w-full">
-          {children}
+          {children || <Outlet />}
         </div>
       </main>
     </div>

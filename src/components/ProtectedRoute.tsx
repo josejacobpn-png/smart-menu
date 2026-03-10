@@ -2,6 +2,7 @@ import { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -13,8 +14,25 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background space-y-4">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <p className="text-sm text-muted-foreground animate-pulse">Carregando...</p>
+
+        {/* Safety button if stuck */}
+        <div className="pt-8 opacity-0 animate-in fade-in duration-1000 fill-mode-forwards" style={{ animationDelay: '3s' }}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              localStorage.clear();
+              sessionStorage.clear();
+              window.location.href = '/auth?clear=true';
+            }}
+            className="text-[10px] text-muted-foreground/30 hover:text-primary uppercase tracking-widest"
+          >
+            Demorando muito? Clique aqui para reiniciar
+          </Button>
+        </div>
       </div>
     );
   }

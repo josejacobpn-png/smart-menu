@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import MainLayout from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -185,110 +184,108 @@ export default function Tables() {
   const occupiedTables = tables.filter(t => t.status === 'occupied').length;
 
   return (
-    <MainLayout>
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl lg:text-3xl font-bold">Mesas</h1>
-            <p className="text-muted-foreground">
-              {freeTables} livre{freeTables !== 1 ? 's' : ''} • {occupiedTables} ocupada{occupiedTables !== 1 ? 's' : ''}
-            </p>
-          </div>
-          <Button className="gradient-primary" onClick={() => openDialog()}>
-            <Plus className="h-4 w-4 mr-2" />
-            Nova Mesa
-          </Button>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl lg:text-3xl font-bold">Mesas</h1>
+          <p className="text-muted-foreground">
+            {freeTables} livre{freeTables !== 1 ? 's' : ''} • {occupiedTables} ocupada{occupiedTables !== 1 ? 's' : ''}
+          </p>
         </div>
-
-        {/* Tables Grid */}
-        {tables.length === 0 ? (
-          <Card>
-            <CardContent className="py-12 text-center text-muted-foreground">
-              <Users className="h-12 w-12 mx-auto mb-3 opacity-50" />
-              <p>Nenhuma mesa cadastrada</p>
-              <Button variant="link" className="mt-2" onClick={() => openDialog()}>
-                Adicionar primeira mesa
-              </Button>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-            {tables.map((table) => {
-              const order = tableOrders[table.id];
-              const isOccupied = table.status === 'occupied';
-
-              return (
-                <Card
-                  key={table.id}
-                  className={`card-hover ${isOccupied ? 'border-warning' : 'border-success'}`}
-                >
-                  <CardContent className="p-4 text-center">
-                    <div className="relative">
-                      <div className={`w-16 h-16 mx-auto rounded-full flex items-center justify-center text-2xl font-bold ${isOccupied ? 'bg-warning/10 text-warning' : 'bg-success/10 text-success'
-                        }`}>
-                        {table.number}
-                      </div>
-                      <Badge
-                        variant={isOccupied ? 'default' : 'secondary'}
-                        className={`absolute -top-1 -right-1 ${isOccupied ? 'bg-warning text-warning-foreground' : 'bg-success text-success-foreground'
-                          }`}
-                      >
-                        {isOccupied ? 'Ocupada' : 'Livre'}
-                      </Badge>
-                    </div>
-
-                    <p className="text-sm text-muted-foreground mt-3">
-                      {table.capacity} lugares
-                    </p>
-
-                    {order && (
-                      <div className="mt-2 p-2 bg-muted rounded-lg">
-                        <p className="text-xs text-muted-foreground">Pedido #{order.order_number}</p>
-                        <p className="font-semibold">{formatCurrency(Number(order.total))}</p>
-                        {order.employee_id && employees[order.employee_id] && (
-                          <div className="flex items-center justify-center gap-1 mt-1 text-xs text-muted-foreground border-t border-border/50 pt-1">
-                            <span className="w-2 h-2 rounded-full bg-primary/50" />
-                            {employees[order.employee_id]}
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    <div className="flex gap-1 mt-3 justify-center">
-                      {isOccupied && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => freeTable(table.id)}
-                        >
-                          Liberar
-                        </Button>
-                      )}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => openDialog(table)}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-destructive"
-                        onClick={() => deleteTable(table.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        )}
+        <Button className="gradient-primary" onClick={() => openDialog()}>
+          <Plus className="h-4 w-4 mr-2" />
+          Nova Mesa
+        </Button>
       </div>
+
+      {/* Tables Grid */}
+      {tables.length === 0 ? (
+        <Card>
+          <CardContent className="py-12 text-center text-muted-foreground">
+            <Users className="h-12 w-12 mx-auto mb-3 opacity-50" />
+            <p>Nenhuma mesa cadastrada</p>
+            <Button variant="link" className="mt-2" onClick={() => openDialog()}>
+              Adicionar primeira mesa
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+          {tables.map((table) => {
+            const order = tableOrders[table.id];
+            const isOccupied = table.status === 'occupied';
+
+            return (
+              <Card
+                key={table.id}
+                className={`card-hover ${isOccupied ? 'border-warning' : 'border-success'}`}
+              >
+                <CardContent className="p-4 text-center">
+                  <div className="relative">
+                    <div className={`w-16 h-16 mx-auto rounded-full flex items-center justify-center text-2xl font-bold ${isOccupied ? 'bg-warning/10 text-warning' : 'bg-success/10 text-success'
+                      }`}>
+                      {table.number}
+                    </div>
+                    <Badge
+                      variant={isOccupied ? 'default' : 'secondary'}
+                      className={`absolute -top-1 -right-1 ${isOccupied ? 'bg-warning text-warning-foreground' : 'bg-success text-success-foreground'
+                        }`}
+                    >
+                      {isOccupied ? 'Ocupada' : 'Livre'}
+                    </Badge>
+                  </div>
+
+                  <p className="text-sm text-muted-foreground mt-3">
+                    {table.capacity} lugares
+                  </p>
+
+                  {order && (
+                    <div className="mt-2 p-2 bg-muted rounded-lg">
+                      <p className="text-xs text-muted-foreground">Pedido #{order.order_number}</p>
+                      <p className="font-semibold">{formatCurrency(Number(order.total))}</p>
+                      {order.employee_id && employees[order.employee_id] && (
+                        <div className="flex items-center justify-center gap-1 mt-1 text-xs text-muted-foreground border-t border-border/50 pt-1">
+                          <span className="w-2 h-2 rounded-full bg-primary/50" />
+                          {employees[order.employee_id]}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="flex gap-1 mt-3 justify-center">
+                    {isOccupied && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => freeTable(table.id)}
+                      >
+                        Liberar
+                      </Button>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => openDialog(table)}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-destructive"
+                      onClick={() => deleteTable(table.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
 
       {/* Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -321,6 +318,6 @@ export default function Tables() {
           </div>
         </DialogContent>
       </Dialog>
-    </MainLayout>
+    </div>
   );
 }

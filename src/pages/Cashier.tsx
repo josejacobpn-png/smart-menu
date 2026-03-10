@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCashier } from '@/hooks/useCashier';
 import { Order, PaymentMethod } from '@/types/cashier';
-import MainLayout from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -154,7 +153,7 @@ export default function Cashier() {
     : 0;
 
   return (
-    <MainLayout>
+    <>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -407,6 +406,7 @@ export default function Cashier() {
           restaurantName={restaurant?.name}
         />
       )}
-    </MainLayout>
+    </div >
+    </>
   );
 }

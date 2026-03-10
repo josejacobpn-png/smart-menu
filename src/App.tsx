@@ -8,6 +8,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { Loader2 } from "lucide-react";
 import { ThemeProvider } from "@/components/theme-provider";
+import MainLayout from "@/components/layout/MainLayout";
 
 // Lazy load pages
 const Auth = lazy(() => import("./pages/Auth"));
@@ -53,19 +54,24 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Navigate to="/dashboard" replace />} />
                 <Route path="/auth" element={<Auth />} />
-                <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-                <Route path="/menu" element={<ProtectedRoute allowedRoles={['admin']}><MenuPage /></ProtectedRoute>} />
-                <Route path="/orders" element={<ProtectedRoute allowedRoles={['admin', 'attendant']}><Orders /></ProtectedRoute>} />
-                <Route path="/orders/new" element={<ProtectedRoute allowedRoles={['admin', 'attendant']}><NewOrder /></ProtectedRoute>} />
-                <Route path="/orders/:id" element={<ProtectedRoute allowedRoles={['admin', 'attendant']}><OrderDetails /></ProtectedRoute>} />
-                <Route path="/tables" element={<ProtectedRoute allowedRoles={['admin', 'attendant']}><Tables /></ProtectedRoute>} />
-                <Route path="/kitchen" element={<ProtectedRoute allowedRoles={['admin', 'kitchen']}><Kitchen /></ProtectedRoute>} />
-                <Route path="/cashier" element={<ProtectedRoute allowedRoles={['admin', 'attendant']}><Cashier /></ProtectedRoute>} />
-                <Route path="/reports" element={<ProtectedRoute allowedRoles={['admin']}><Reports /></ProtectedRoute>} />
-                <Route path="/settings" element={<ProtectedRoute allowedRoles={['admin']}><Settings /></ProtectedRoute>} />
-                <Route path="/employees" element={<ProtectedRoute allowedRoles={['admin']}><Employees /></ProtectedRoute>} />
                 <Route path="/admin-login" element={<AdminAuth />} />
-                <Route path="/admin-tenants" element={<ProtectedRoute><AdminTenants /></ProtectedRoute>} />
+
+                {/* Authenticated Routes with Persistent Layout */}
+                <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/menu" element={<MenuPage />} />
+                  <Route path="/orders" element={<Orders />} />
+                  <Route path="/orders/new" element={<NewOrder />} />
+                  <Route path="/orders/:id" element={<OrderDetails />} />
+                  <Route path="/tables" element={<Tables />} />
+                  <Route path="/kitchen" element={<Kitchen />} />
+                  <Route path="/cashier" element={<Cashier />} />
+                  <Route path="/reports" element={<Reports />} />
+                  <Route path="/settings" element={<Settings />} />
+                  <Route path="/employees" element={<Employees />} />
+                  <Route path="/admin-tenants" element={<AdminTenants />} />
+                </Route>
+
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>

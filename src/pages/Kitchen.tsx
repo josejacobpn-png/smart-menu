@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import MainLayout from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -398,96 +397,94 @@ export default function Kitchen() {
   };
 
   return (
-    <MainLayout>
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 gradient-primary rounded-xl flex items-center justify-center">
-              <ChefHat className="h-6 w-6 text-primary-foreground" />
-            </div>
-            <div>
-              <h1 className="text-2xl lg:text-3xl font-bold">Cozinha</h1>
-              <p className="text-muted-foreground">Pedidos em tempo real</p>
-            </div>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 gradient-primary rounded-xl flex items-center justify-center">
+            <ChefHat className="h-6 w-6 text-primary-foreground" />
           </div>
-          {openOrders.length > 0 && (
-            <Badge className="bg-primary text-primary-foreground animate-bounce-soft text-lg px-4 py-2">
-              <Bell className="h-4 w-4 mr-2" />
-              {openOrders.length} novo{openOrders.length > 1 ? 's' : ''}
-            </Badge>
-          )}
+          <div>
+            <h1 className="text-2xl lg:text-3xl font-bold">Cozinha</h1>
+            <p className="text-muted-foreground">Pedidos em tempo real</p>
+          </div>
+        </div>
+        {openOrders.length > 0 && (
+          <Badge className="bg-primary text-primary-foreground animate-bounce-soft text-lg px-4 py-2">
+            <Bell className="h-4 w-4 mr-2" />
+            {openOrders.length} novo{openOrders.length > 1 ? 's' : ''}
+          </Badge>
+        )}
+      </div>
+
+      {/* Orders Columns */}
+      <div className="grid lg:grid-cols-3 gap-6">
+        {/* New Orders */}
+        <div>
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-3 h-3 rounded-full bg-info animate-pulse" />
+            <h2 className="font-semibold text-lg">Novos Pedidos</h2>
+            <Badge variant="secondary">{openOrders.length}</Badge>
+          </div>
+          <div className="space-y-4">
+            {openOrders.length === 0 ? (
+              <Card>
+                <CardContent className="py-8 text-center text-muted-foreground">
+                  <p>Nenhum pedido novo</p>
+                </CardContent>
+              </Card>
+            ) : (
+              openOrders.map((order) => (
+                <OrderCard key={order.id} order={order} showStartButton />
+              ))
+            )}
+          </div>
         </div>
 
-        {/* Orders Columns */}
-        <div className="grid lg:grid-cols-3 gap-6">
-          {/* New Orders */}
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-3 h-3 rounded-full bg-info animate-pulse" />
-              <h2 className="font-semibold text-lg">Novos Pedidos</h2>
-              <Badge variant="secondary">{openOrders.length}</Badge>
-            </div>
-            <div className="space-y-4">
-              {openOrders.length === 0 ? (
-                <Card>
-                  <CardContent className="py-8 text-center text-muted-foreground">
-                    <p>Nenhum pedido novo</p>
-                  </CardContent>
-                </Card>
-              ) : (
-                openOrders.map((order) => (
-                  <OrderCard key={order.id} order={order} showStartButton />
-                ))
-              )}
-            </div>
+        {/* Preparing */}
+        <div>
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-3 h-3 rounded-full bg-warning" />
+            <h2 className="font-semibold text-lg">Em Preparo</h2>
+            <Badge variant="secondary">{preparingOrders.length}</Badge>
           </div>
-
-          {/* Preparing */}
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-3 h-3 rounded-full bg-warning" />
-              <h2 className="font-semibold text-lg">Em Preparo</h2>
-              <Badge variant="secondary">{preparingOrders.length}</Badge>
-            </div>
-            <div className="space-y-4">
-              {preparingOrders.length === 0 ? (
-                <Card>
-                  <CardContent className="py-8 text-center text-muted-foreground">
-                    <p>Nenhum pedido em preparo</p>
-                  </CardContent>
-                </Card>
-              ) : (
-                preparingOrders.map((order) => (
-                  <OrderCard key={order.id} order={order} showReadyButton />
-                ))
-              )}
-            </div>
+          <div className="space-y-4">
+            {preparingOrders.length === 0 ? (
+              <Card>
+                <CardContent className="py-8 text-center text-muted-foreground">
+                  <p>Nenhum pedido em preparo</p>
+                </CardContent>
+              </Card>
+            ) : (
+              preparingOrders.map((order) => (
+                <OrderCard key={order.id} order={order} showReadyButton />
+              ))
+            )}
           </div>
+        </div>
 
-          {/* Ready */}
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-3 h-3 rounded-full bg-success" />
-              <h2 className="font-semibold text-lg">Prontos</h2>
-              <Badge variant="secondary">{readyOrders.length}</Badge>
-            </div>
-            <div className="space-y-4">
-              {readyOrders.length === 0 ? (
-                <Card>
-                  <CardContent className="py-8 text-center text-muted-foreground">
-                    <p>Nenhum pedido pronto</p>
-                  </CardContent>
-                </Card>
-              ) : (
-                readyOrders.map((order) => (
-                  <OrderCard key={order.id} order={order} />
-                ))
-              )}
-            </div>
+        {/* Ready */}
+        <div>
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-3 h-3 rounded-full bg-success" />
+            <h2 className="font-semibold text-lg">Prontos</h2>
+            <Badge variant="secondary">{readyOrders.length}</Badge>
+          </div>
+          <div className="space-y-4">
+            {readyOrders.length === 0 ? (
+              <Card>
+                <CardContent className="py-8 text-center text-muted-foreground">
+                  <p>Nenhum pedido pronto</p>
+                </CardContent>
+              </Card>
+            ) : (
+              readyOrders.map((order) => (
+                <OrderCard key={order.id} order={order} />
+              ))
+            )}
           </div>
         </div>
       </div>
-    </MainLayout>
+    </div>
   );
 }

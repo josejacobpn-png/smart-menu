@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import MainLayout from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -257,228 +256,226 @@ export default function Reports() {
   };
 
   return (
-    <MainLayout>
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 gradient-primary rounded-xl flex items-center justify-center">
-              <BarChart3 className="h-6 w-6 text-primary-foreground" />
-            </div>
-            <div>
-              <h1 className="text-2xl lg:text-3xl font-bold">Relatórios</h1>
-              <p className="text-muted-foreground">Filtros avançados</p>
-            </div>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 gradient-primary rounded-xl flex items-center justify-center">
+            <BarChart3 className="h-6 w-6 text-primary-foreground" />
           </div>
-
-          <div className="no-print">
-            <Button variant="outline" onClick={() => window.print()}>
-              <Printer className="h-4 w-4 mr-2" />
-              Imprimir
-            </Button>
+          <div>
+            <h1 className="text-2xl lg:text-3xl font-bold">Relatórios</h1>
+            <p className="text-muted-foreground">Filtros avançados</p>
           </div>
         </div>
 
-        {/* Filters */}
-        <Card>
+        <div className="no-print">
+          <Button variant="outline" onClick={() => window.print()}>
+            <Printer className="h-4 w-4 mr-2" />
+            Imprimir
+          </Button>
+        </div>
+      </div>
+
+      {/* Filters */}
+      <Card>
+        <CardContent className="p-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+              <label className="text-sm font-medium mb-1 block">Data Inicial</label>
+              <div className="relative">
+                <Calendar className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-1 block">Data Final</label>
+              <div className="relative">
+                <Calendar className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-1 block">Funcionário</label>
+              <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Todos" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos</SelectItem>
+                  {employees.map(emp => (
+                    <SelectItem key={emp.id} value={emp.id}>{emp.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-1 block">Produto</label>
+              <Select value={selectedProduct} onValueChange={setSelectedProduct}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Todos" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos</SelectItem>
+                  {products.map(prod => (
+                    <SelectItem key={prod.id} value={prod.id}>{prod.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="card-hover">
           <CardContent className="p-4">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="flex items-center justify-between">
               <div>
-                <label className="text-sm font-medium mb-1 block">Data Inicial</label>
-                <div className="relative">
-                  <Calendar className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    type="date"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    className="pl-9"
-                  />
-                </div>
+                <p className="text-sm text-muted-foreground">Faturamento</p>
+                <p className="text-xl lg:text-2xl font-bold">{formatCurrency(dailyStats.totalSales)}</p>
               </div>
-              <div>
-                <label className="text-sm font-medium mb-1 block">Data Final</label>
-                <div className="relative">
-                  <Calendar className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    type="date"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    className="pl-9"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="text-sm font-medium mb-1 block">Funcionário</label>
-                <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Todos" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Todos</SelectItem>
-                    {employees.map(emp => (
-                      <SelectItem key={emp.id} value={emp.id}>{emp.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <label className="text-sm font-medium mb-1 block">Produto</label>
-                <Select value={selectedProduct} onValueChange={setSelectedProduct}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Todos" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Todos</SelectItem>
-                    {products.map(prod => (
-                      <SelectItem key={prod.id} value={prod.id}>{prod.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <div className="p-3 gradient-primary rounded-xl">
+                <DollarSign className="h-5 w-5 text-primary-foreground" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="card-hover">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Faturamento</p>
-                  <p className="text-xl lg:text-2xl font-bold">{formatCurrency(dailyStats.totalSales)}</p>
-                </div>
-                <div className="p-3 gradient-primary rounded-xl">
-                  <DollarSign className="h-5 w-5 text-primary-foreground" />
-                </div>
+        <Card className="card-hover">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Pedidos</p>
+                <p className="text-xl lg:text-2xl font-bold">{dailyStats.totalOrders}</p>
               </div>
-            </CardContent>
-          </Card>
-
-          <Card className="card-hover">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Pedidos</p>
-                  <p className="text-xl lg:text-2xl font-bold">{dailyStats.totalOrders}</p>
-                </div>
-                <div className="p-3 bg-info rounded-xl">
-                  <ShoppingBag className="h-5 w-5 text-info-foreground" />
-                </div>
+              <div className="p-3 bg-info rounded-xl">
+                <ShoppingBag className="h-5 w-5 text-info-foreground" />
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </CardContent>
+        </Card>
 
-          <Card className="card-hover">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Ticket Médio</p>
-                  <p className="text-xl lg:text-2xl font-bold">{formatCurrency(dailyStats.averageTicket)}</p>
-                </div>
-                <div className="p-3 bg-success rounded-xl">
-                  <TrendingUp className="h-5 w-5 text-success-foreground" />
-                </div>
+        <Card className="card-hover">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Ticket Médio</p>
+                <p className="text-xl lg:text-2xl font-bold">{formatCurrency(dailyStats.averageTicket)}</p>
               </div>
-            </CardContent>
-          </Card>
-
-          <Card className="card-hover">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Finalizados</p>
-                  <p className="text-xl lg:text-2xl font-bold">{dailyStats.completedOrders}</p>
-                  {dailyStats.cancelledOrders > 0 && (
-                    <p className="text-xs text-destructive">{dailyStats.cancelledOrders} cancelados</p>
-                  )}
-                </div>
-                <div className="p-3 bg-muted rounded-xl">
-                  <Package className="h-5 w-5 text-muted-foreground" />
-                </div>
+              <div className="p-3 bg-success rounded-xl">
+                <TrendingUp className="h-5 w-5 text-success-foreground" />
               </div>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </CardContent>
+        </Card>
 
-        <div className="grid lg:grid-cols-2 gap-6">
-          {/* Payment Methods */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Vendas por Forma de Pagamento</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {Object.entries(paymentStats).map(([method, amount]) => {
-                const { label, icon: Icon } = paymentMethodLabels[method];
-                const percentage = dailyStats.totalSales > 0
-                  ? (amount / dailyStats.totalSales) * 100
-                  : 0;
-
-                return (
-                  <div key={method} className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Icon className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-medium">{label}</span>
-                      </div>
-                      <span className="font-bold">{formatCurrency(amount)}</span>
-                    </div>
-                    <div className="h-2 bg-muted rounded-full overflow-hidden">
-                      <div
-                        className="h-full gradient-primary rounded-full transition-all"
-                        style={{ width: `${percentage}%` }}
-                      />
-                    </div>
-                  </div>
-                );
-              })}
-            </CardContent>
-          </Card>
-
-          {/* Top Products */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Produtos Mais Vendidos</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {topProducts.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Package className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                  <p>Nenhuma venda no período</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {topProducts.map((product, index) => (
-                    <div
-                      key={product.product_name}
-                      className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${index === 0 ? 'bg-warning text-warning-foreground' :
-                          index === 1 ? 'bg-muted-foreground/20 text-foreground' :
-                            index === 2 ? 'bg-orange-400/20 text-orange-600' :
-                              'bg-muted text-muted-foreground'
-                          }`}>
-                          {index + 1}
-                        </div>
-                        <div>
-                          <p className="font-medium">{product.product_name}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {product.total_quantity} vendidos
-                          </p>
-                        </div>
-                      </div>
-                      <span className="font-bold text-primary">
-                        {formatCurrency(product.total_revenue)}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+        <Card className="card-hover">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Finalizados</p>
+                <p className="text-xl lg:text-2xl font-bold">{dailyStats.completedOrders}</p>
+                {dailyStats.cancelledOrders > 0 && (
+                  <p className="text-xs text-destructive">{dailyStats.cancelledOrders} cancelados</p>
+                )}
+              </div>
+              <div className="p-3 bg-muted rounded-xl">
+                <Package className="h-5 w-5 text-muted-foreground" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
-    </MainLayout>
+
+      <div className="grid lg:grid-cols-2 gap-6">
+        {/* Payment Methods */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Vendas por Forma de Pagamento</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {Object.entries(paymentStats).map(([method, amount]) => {
+              const { label, icon: Icon } = paymentMethodLabels[method];
+              const percentage = dailyStats.totalSales > 0
+                ? (amount / dailyStats.totalSales) * 100
+                : 0;
+
+              return (
+                <div key={method} className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Icon className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-medium">{label}</span>
+                    </div>
+                    <span className="font-bold">{formatCurrency(amount)}</span>
+                  </div>
+                  <div className="h-2 bg-muted rounded-full overflow-hidden">
+                    <div
+                      className="h-full gradient-primary rounded-full transition-all"
+                      style={{ width: `${percentage}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </CardContent>
+        </Card>
+
+        {/* Top Products */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Produtos Mais Vendidos</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {topProducts.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <Package className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                <p>Nenhuma venda no período</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {topProducts.map((product, index) => (
+                  <div
+                    key={product.product_name}
+                    className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${index === 0 ? 'bg-warning text-warning-foreground' :
+                        index === 1 ? 'bg-muted-foreground/20 text-foreground' :
+                          index === 2 ? 'bg-orange-400/20 text-orange-600' :
+                            'bg-muted text-muted-foreground'
+                        }`}>
+                        {index + 1}
+                      </div>
+                      <div>
+                        <p className="font-medium">{product.product_name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {product.total_quantity} vendidos
+                        </p>
+                      </div>
+                    </div>
+                    <span className="font-bold text-primary">
+                      {formatCurrency(product.total_revenue)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 }
