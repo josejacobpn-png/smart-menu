@@ -59,63 +59,67 @@ const LoadingFallback = () => (
   </div>
 );
 
+import ErrorBoundary from "@/components/ErrorBoundary";
+
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AuthProvider>
-            <Routes>
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
-              <Route 
-                path="/auth" 
-                element={
-                  <Suspense fallback={<LoadingFallback />}>
-                    <Auth />
-                  </Suspense>
-                } 
-              />
-              <Route 
-                path="/admin-login" 
-                element={
-                  <Suspense fallback={<LoadingFallback />}>
-                    <AdminAuth />
-                  </Suspense>
-                } 
-              />
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <AuthProvider>
+              <Routes>
+                <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                <Route 
+                  path="/auth" 
+                  element={
+                    <Suspense fallback={<LoadingFallback />}>
+                      <Auth />
+                    </Suspense>
+                  } 
+                />
+                <Route 
+                  path="/admin-login" 
+                  element={
+                    <Suspense fallback={<LoadingFallback />}>
+                      <AdminAuth />
+                    </Suspense>
+                  } 
+                />
 
-              {/* Authenticated Routes with Persistent Layout */}
-              <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/menu" element={<MenuPage />} />
-                <Route path="/orders" element={<Orders />} />
-                <Route path="/orders/new" element={<NewOrder />} />
-                <Route path="/orders/:id" element={<OrderDetails />} />
-                <Route path="/tables" element={<Tables />} />
-                <Route path="/kitchen" element={<Kitchen />} />
-                <Route path="/cashier" element={<Cashier />} />
-                <Route path="/reports" element={<Reports />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/employees" element={<Employees />} />
-                <Route path="/admin-tenants" element={<AdminTenants />} />
-              </Route>
+                {/* Authenticated Routes with Persistent Layout */}
+                <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/menu" element={<MenuPage />} />
+                  <Route path="/orders" element={<Orders />} />
+                  <Route path="/orders/new" element={<NewOrder />} />
+                  <Route path="/orders/:id" element={<OrderDetails />} />
+                  <Route path="/tables" element={<Tables />} />
+                  <Route path="/kitchen" element={<Kitchen />} />
+                  <Route path="/cashier" element={<Cashier />} />
+                  <Route path="/reports" element={<Reports />} />
+                  <Route path="/settings" element={<Settings />} />
+                  <Route path="/employees" element={<Employees />} />
+                  <Route path="/admin-tenants" element={<AdminTenants />} />
+                </Route>
 
-              <Route 
-                path="*" 
-                element={
-                  <Suspense fallback={<LoadingFallback />}>
-                    <NotFound />
-                  </Suspense>
-                } 
-              />
-            </Routes>
-          </AuthProvider>
-        </BrowserRouter>
-      </TooltipProvider>
-    </ThemeProvider>
-  </QueryClientProvider>
+                <Route 
+                  path="*" 
+                  element={
+                    <Suspense fallback={<LoadingFallback />}>
+                      <NotFound />
+                    </Suspense>
+                  } 
+                />
+              </Routes>
+            </AuthProvider>
+          </BrowserRouter>
+        </TooltipProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;

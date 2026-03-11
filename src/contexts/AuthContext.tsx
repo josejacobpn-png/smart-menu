@@ -137,12 +137,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         if (sessionError) {
           console.error('[AuthContext] getSession error:', sessionError);
+          // Only stop loading if it's not a transient fetch error
           if (mounted) setLoading(false);
           return;
         }
 
         if (!mounted) return;
 
+        console.log('[AuthContext] Session check:', initialSession ? 'Found' : 'None');
         setSession(initialSession);
         setUser(initialSession?.user ?? null);
 
@@ -155,6 +157,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.error('[AuthContext] initializeAuth error:', error);
         if (mounted) setLoading(false);
       } finally {
+        if (mounted) {
+          // Final fallback to ensure we never stay loading forever
+          setTimeout(() => {
+            if (loading) {
+              console.warn('[AuthContext] Final safety loading release');
+              setLoading(false);
+            }
+          }, 2000);
+        }
         clearTimeout(initTimeout);
       }
     };
