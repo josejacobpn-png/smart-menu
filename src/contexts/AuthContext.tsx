@@ -149,6 +149,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(initialSession?.user ?? null);
 
         if (initialSession?.user) {
+          // fetchUserData will set loading to false when done
           await fetchUserData(initialSession.user.id);
         } else {
           setLoading(false);
@@ -157,15 +158,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.error('[AuthContext] initializeAuth error:', error);
         if (mounted) setLoading(false);
       } finally {
-        if (mounted) {
-          // Final fallback to ensure we never stay loading forever
-          setTimeout(() => {
-            if (loading) {
-              console.warn('[AuthContext] Final safety loading release');
-              setLoading(false);
-            }
-          }, 2000);
-        }
         clearTimeout(initTimeout);
       }
     };
