@@ -17,7 +17,6 @@ import {
   Settings
 } from 'lucide-react';
 import { useState } from 'react';
-import { SubscriptionStatus } from '../subscription/SubscriptionStatus';
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard', roles: ['admin', 'attendant', 'kitchen'] },
@@ -139,7 +138,6 @@ export default function Sidebar() {
         mobileOpen ? 'translate-x-0' : '-translate-x-full'
       )}>
         {sidebarHeader}
-        <SubscriptionStatus />
         {navLinks}
         {sidebarFooter}
       </aside>
@@ -147,7 +145,6 @@ export default function Sidebar() {
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex fixed left-0 top-0 bottom-0 w-72 bg-sidebar flex-col shadow-xl z-30">
         {sidebarHeader}
-        <SubscriptionStatus />
         {navLinks}
         {sidebarFooter}
       </aside>

@@ -10,13 +10,13 @@ interface ProtectedRouteProps {
 }
 
 export default function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
-  const { user, loading, hasRole } = useAuth();
+  const { user, profile, loading, hasRole } = useAuth();
 
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background space-y-4">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <p className="text-sm text-muted-foreground animate-pulse">Carregando...</p>
+        <p className="text-sm text-muted-foreground animate-pulse">Carregando perfil...</p>
 
         {/* Safety button if stuck */}
         <div className="pt-8">
@@ -38,6 +38,12 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
   }
 
   if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  // If we have a user but no profile after loading, it's an inconsistent state
+  if (user && !profile) {
+    console.warn('[ProtectedRoute] User exists but no profile found. Redirecting to auth.');
     return <Navigate to="/auth" replace />;
   }
 

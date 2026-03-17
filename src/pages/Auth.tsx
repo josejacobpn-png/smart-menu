@@ -16,17 +16,32 @@ const loginSchema = z.object({
 
 export default function Auth() {
   const navigate = useNavigate();
-  const { signIn, user, loading: authLoading } = useAuth();
+  const { signIn, signOut, user, profile, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
 
   useEffect(() => {
-    if (user && !authLoading) {
-      navigate('/dashboard');
+    console.log('[AuthPage] State Check:', { user: !!user, profile: !!profile, authLoading });
+
+    if (user && profile && !authLoading) {
+      console.log('[AuthPage] Pre-conditions met, navigating to dashboard...');
+      navigate('/dashboard', { replace: true });
     }
-  }, [user, authLoading, navigate]);
+    
+    if (user && !profile && !authLoading) {
+      console.error('[AuthPage] Inconsistent state: User detected but no profile loaded. Triggering safe logout.');
+      
+      // Automatic recovery: sign out to clear stale/broken session
+      signOut();
+      
+      toast({
+        title: 'Sessão expirada ou inválida',
+        description: 'Limpando dados antigos. Por favor, entre novamente.',
+      });
+    }
+  }, [user, profile, authLoading, navigate, toast, signOut]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,18 +75,38 @@ export default function Auth() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background space-y-6">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <div className="pt-4">
-          <button 
-            onClick={() => {
-              localStorage.clear();
-              sessionStorage.clear();
-              window.location.href = '/auth?clear=true';
-            }}
-            className="text-[10px] text-muted-foreground/60 hover:text-primary uppercase tracking-widest font-bold"
-          >
-            Travado aqui? Clique para Limpar Cache e reiniciar
-          </button>
-        </div>
+        <p className="text-sm text-muted-foreground animate-pulse">Sincronizando conta...</p>
+      </div>
+    );
+  }
+
+  if (user && !profile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4 bg-background">
+        <Card className="w-full max-w-md shadow-soft">
+          <CardHeader className="text-center">
+            <div className="mx-auto w-16 h-16 bg-destructive/10 rounded-full flex items-center justify-center mb-4">
+              <UtensilsCrossed className="h-8 w-8 text-destructive" />
+            </div>
+            <CardTitle>Inconsistência de Conta</CardTitle>
+            <CardDescription>
+              Você está autenticado como <strong>{user.email}</strong>, mas não encontramos seu perfil de restaurante.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-muted-foreground text-center">
+              Se você acabou de se cadastrar, aguarde alguns segundos. Caso contrário, sua conta pode não estar vinculada a um restaurante.
+            </p>
+            <div className="flex flex-col gap-2">
+              <Button onClick={() => window.location.reload()} variant="outline" className="w-full">
+                Tentar Novamente
+              </Button>
+              <Button onClick={() => useAuth().signOut()} variant="ghost" className="w-full">
+                Sair da Conta
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }

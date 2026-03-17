@@ -19,8 +19,6 @@ interface Restaurant {
   id: string;
   name: string;
   slug: string;
-  trial_ends_at: string | null;
-  subscription_ends_at: string | null;
 }
 
 interface AuthContextType {
@@ -56,64 +54,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    // Skip if already fetching same user
     if (fetchingRef.current === userId) return;
     fetchingRef.current = userId;
-
-    console.log('[AuthContext] Fetching user data for:', userId);
-
-    // Set a safety timeout - reduced further for faster recovery
-    const timeoutId = setTimeout(() => {
-      console.warn('[AuthContext] fetchUserData timed out after 5s');
-      if (fetchingRef.current === userId) {
-        setLoading(false);
-        fetchingRef.current = null;
-      }
-    }, 5000);
+    
+    setLoading(true);
+    console.log('[AuthContext] Fetching data for:', userId);
 
     try {
-      const [profileRes, rolesRes] = await Promise.all([
-        supabase.from('profiles').select('*').eq('id', userId).maybeSingle(),
-        supabase.from('user_roles').select('role, restaurant_id').eq('user_id', userId)
-      ]);
+      // Fetch everything in one go for speed
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .maybeSingle();
 
-      if (profileRes.error) {
-        console.error('[AuthContext] Profile fetch error:', profileRes.error);
-        throw profileRes.error;
-      }
+      if (profileError) throw profileError;
 
-      const profileData = profileRes.data;
-      let restaurantData = null;
+      if (profileData) {
+        const [rolesRes, restaurantRes] = await Promise.all([
+          supabase.from('user_roles').select('role, restaurant_id').eq('user_id', userId),
+          profileData.restaurant_id 
+            ? supabase.from('restaurants').select('*').eq('id', profileData.restaurant_id).maybeSingle()
+            : Promise.resolve({ data: null, error: null })
+        ]);
 
-      if (profileData?.restaurant_id) {
-        const { data: rData, error: rError } = await supabase
-          .from('restaurants')
-          .select('id, name, slug, trial_ends_at, subscription_ends_at')
-          .eq('id', profileData.restaurant_id)
-          .maybeSingle();
-
-        if (rError) console.error('[AuthContext] Restaurant fetch error:', rError);
-        restaurantData = rData;
-      }
-
-      // Batch all updates
-      setProfile(profileData);
-      setRestaurant(restaurantData);
-      setUserRoles(rolesRes.data as UserRole[] || []);
-
-      if (!profileData && userId) {
-        console.warn('[AuthContext] Session exists but no profile found. Signing out.');
-        await supabase.auth.signOut();
+        setProfile(profileData);
+        setUserRoles(rolesRes.data as UserRole[] || []);
+        setRestaurant(restaurantRes.data as Restaurant || null);
+        console.log('[AuthContext] Success loading profile:', profileData.id);
+      } else {
+        console.warn('[AuthContext] No profile found');
         setProfile(null);
-        setRestaurant(null);
-        setUserRoles([]);
-        setUser(null);
-        setSession(null);
       }
     } catch (error) {
-      console.error('[AuthContext] fetchUserData caught error:', error);
+      console.error('[AuthContext] Fetch error:', error);
     } finally {
-      clearTimeout(timeoutId);
       fetchingRef.current = null;
       setLoading(false);
     }
@@ -122,74 +97,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let mounted = true;
 
-    // Safety timeout for initialization
-    const initTimeout = setTimeout(() => {
-      if (mounted && loading) {
-        console.warn('[AuthContext] Initialization timeout reached');
-        setLoading(false);
-      }
-    }, 6000);
-
-    const initializeAuth = async () => {
-      console.log('[AuthContext] Initializing auth...');
+    async function init() {
       try {
-        const { data: { session: initialSession }, error: sessionError } = await supabase.auth.getSession();
-        
-        if (sessionError) {
-          console.error('[AuthContext] getSession error:', sessionError);
-          // Only stop loading if it's not a transient fetch error
-          if (mounted) setLoading(false);
-          return;
-        }
-
+        const { data: { session: s } } = await supabase.auth.getSession();
         if (!mounted) return;
-
-        console.log('[AuthContext] Session check:', initialSession ? 'Found' : 'None');
-        setSession(initialSession);
-        setUser(initialSession?.user ?? null);
-
-        if (initialSession?.user) {
-          // fetchUserData will set loading to false when done
-          await fetchUserData(initialSession.user.id);
+        
+        setSession(s);
+        setUser(s?.user ?? null);
+        
+        if (s?.user) {
+          await fetchUserData(s.user.id);
         } else {
           setLoading(false);
         }
-      } catch (error) {
-        console.error('[AuthContext] initializeAuth error:', error);
+      } catch (err) {
+        console.error('[AuthContext] Init error:', err);
         if (mounted) setLoading(false);
-      } finally {
-        clearTimeout(initTimeout);
       }
-    };
+    }
 
-    initializeAuth();
+    init();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, currentSession) => {
-        if (!mounted) return;
-        console.log('[AuthContext] Auth state change:', event);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, s) => {
+      if (!mounted) return;
+      console.log('[AuthContext] Event:', event);
+      
+      setSession(s);
+      setUser(s?.user ?? null);
 
-        setSession(currentSession);
-        setUser(currentSession?.user ?? null);
-
-        if (event === 'SIGNED_OUT') {
-          setProfile(null);
-          setRestaurant(null);
-          setUserRoles([]);
-          setLoading(false);
-        } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
-          if (currentSession?.user) {
-            await fetchUserData(currentSession.user.id);
-          } else {
-            setLoading(false);
-          }
-        }
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        if (s?.user) fetchUserData(s.user.id);
+      } else if (event === 'SIGNED_OUT') {
+        setProfile(null);
+        setRestaurant(null);
+        setUserRoles([]);
+        setLoading(false);
       }
-    );
+    });
 
     return () => {
       mounted = false;
-      clearTimeout(initTimeout);
       subscription.unsubscribe();
     };
   }, [fetchUserData]);
