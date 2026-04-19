@@ -381,7 +381,7 @@ export default function OrderDetails() {
 
   const statusInfo = getStatusInfo(order.status);
   const StatusIcon = statusInfo.icon;
-  const canModify = order.status === 'open' || order.status === 'preparing';
+  const canModify = order.status === 'open' || order.status === 'preparing' || order.status === 'ready';
 
   return (
     <div className="space-y-6">
