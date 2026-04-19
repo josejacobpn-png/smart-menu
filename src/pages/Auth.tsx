@@ -16,7 +16,7 @@ const loginSchema = z.object({
 
 export default function Auth() {
   const navigate = useNavigate();
-  const { signIn, signOut, user, profile, loading: authLoading } = useAuth();
+  const { signIn, signOut, user, profile, loading: authLoading, hasRole } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
@@ -25,12 +25,17 @@ export default function Auth() {
   useEffect(() => {
     console.log('[AuthPage] State Check:', { user: !!user, profile: !!profile, authLoading });
 
+    const isSuperAdmin = hasRole('admin');
+
     if (user && profile && !authLoading) {
       console.log('[AuthPage] Pre-conditions met, navigating to dashboard...');
       navigate('/dashboard', { replace: true });
+    } else if (user && isSuperAdmin && !authLoading) {
+      console.log('[AuthPage] SuperAdmin detected without profile, moving to admin area...');
+      navigate('/admin-tenants', { replace: true });
     }
     
-    if (user && !profile && !authLoading) {
+    if (user && !profile && !authLoading && !isSuperAdmin) {
       console.error('[AuthPage] Inconsistent state: User detected but no profile loaded. Triggering safe logout.');
       
       // Automatic recovery: sign out to clear stale/broken session

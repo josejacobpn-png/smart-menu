@@ -42,7 +42,9 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
   }
 
   // If we have a user but no profile after loading, it's an inconsistent state
-  if (user && !profile) {
+  // However, we allow Super Admins to proceed as they manage the system and 
+  // might not be linked to a specific restaurant profile yet.
+  if (user && !profile && !hasRole('admin')) {
     console.warn('[ProtectedRoute] User exists but no profile found. Redirecting to auth.');
     return <Navigate to="/auth" replace />;
   }

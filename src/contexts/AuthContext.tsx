@@ -61,31 +61,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     console.log('[AuthContext] Fetching data for:', userId);
 
     try {
-      // Fetch everything in one go for speed
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .maybeSingle();
+      // Fetch profile and roles in parallel for better resilience
+      const [profileRes, rolesRes] = await Promise.all([
+        supabase.from('profiles').select('*').eq('id', userId).maybeSingle(),
+        supabase.from('user_roles').select('role, restaurant_id').eq('user_id', userId)
+      ]);
 
-      if (profileError) throw profileError;
-
-      if (profileData) {
-        const [rolesRes, restaurantRes] = await Promise.all([
-          supabase.from('user_roles').select('role, restaurant_id').eq('user_id', userId),
-          profileData.restaurant_id 
-            ? supabase.from('restaurants').select('*').eq('id', profileData.restaurant_id).maybeSingle()
-            : Promise.resolve({ data: null, error: null })
-        ]);
-
-        setProfile(profileData);
-        setUserRoles(rolesRes.data as UserRole[] || []);
-        setRestaurant(restaurantRes.data as Restaurant || null);
-        console.log('[AuthContext] Success loading profile:', profileData.id);
-      } else {
-        console.warn('[AuthContext] No profile found');
-        setProfile(null);
+      if (profileRes.error) {
+        console.error('[AuthContext] Profile fetch error:', profileRes.error);
       }
+
+      const profileData = profileRes.data;
+      const rolesData = (rolesRes.data as UserRole[]) || [];
+
+      setProfile(profileData);
+      setUserRoles(rolesData);
+
+      // Fetch restaurant data if possible
+      if (profileData?.restaurant_id) {
+        const { data: restaurantRes } = await supabase
+          .from('restaurants')
+          .select('*')
+          .eq('id', profileData.restaurant_id)
+          .maybeSingle();
+        
+        setRestaurant(restaurantRes as Restaurant || null);
+      } else {
+        setRestaurant(null);
+      }
+
+      console.log('[AuthContext] Success loading user data:', { 
+        userId, 
+        hasProfile: !!profileData, 
+        rolesCount: rolesData.length 
+      });
     } catch (error) {
       console.error('[AuthContext] Fetch error:', error);
     } finally {
