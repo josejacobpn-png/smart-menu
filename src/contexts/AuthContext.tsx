@@ -201,8 +201,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const hasRole = useCallback((role: 'admin' | 'attendant' | 'kitchen') => {
-    return userRoles.some(r => r.role === role);
-  }, [userRoles]);
+    // 1. Standard database role check
+    const hasDbRole = userRoles.some(r => r.role === role);
+    if (hasDbRole) return true;
+
+    // 2. Special case for Super Admin (Master User)
+    // We recognize specific emails as system-wide admins even if they don't have a record in user_roles
+    // (since user_roles requires a restaurant_id NOT NULL constraint)
+    const masterEmails = [
+      'smartmenug2@gmail.com', 
+      'josejacob.pn@gmail.com', 
+      'smartbeautyg2@gmail.com'
+    ];
+    
+    if (role === 'admin' && user?.email && masterEmails.includes(user.email.toLowerCase())) {
+      console.log('[AuthContext] Master Admin recognized by email:', user.email);
+      return true;
+    }
+
+    return false;
+  }, [userRoles, user?.email]);
 
   const value = useMemo(() => ({
     user,

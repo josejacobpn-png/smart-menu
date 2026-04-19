@@ -23,7 +23,13 @@ export default function Auth() {
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
 
   useEffect(() => {
-    console.log('[AuthPage] State Check:', { user: !!user, profile: !!profile, authLoading });
+    console.log('[AuthPage] State Check:', { 
+      user: !!user, 
+      profile: !!profile, 
+      authLoading,
+      email: user?.email,
+      isAdmin: hasRole('admin')
+    });
 
     const isSuperAdmin = hasRole('admin');
 
