@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -49,6 +49,7 @@ interface Employee {
 export default function NewOrder() {
   const { restaurant, user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
 
   const [products, setProducts] = useState<Product[]>([]);
@@ -67,6 +68,14 @@ export default function NewOrder() {
   const [orderNotes, setOrderNotes] = useState('');
   const [cart, setCart] = useState<CartItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  useEffect(() => {
+    const tableId = searchParams.get('tableId');
+    if (tableId) {
+      setOrderType('table');
+      setSelectedTable(tableId);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (restaurant?.id) {

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -32,6 +33,7 @@ interface Employee {
 
 export default function Tables() {
   const { restaurant } = useAuth();
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [tables, setTables] = useState<Table[]>([]);
   const [tableOrders, setTableOrders] = useState<Record<string, Order | null>>({});
@@ -161,6 +163,19 @@ export default function Tables() {
     }
   };
 
+  const handleTableClick = (table: Table) => {
+    if (table.status === 'occupied') {
+      const order = tableOrders[table.id];
+      if (order) {
+        navigate(`/orders/${order.id}`);
+      } else {
+        toast({ title: 'Pedido não encontrado', variant: 'destructive' });
+      }
+    } else {
+      navigate(`/new-order?tableId=${table.id}`);
+    }
+  };
+
   const freeTable = async (tableId: string) => {
     try {
       const { error } = await supabase
@@ -219,7 +234,8 @@ export default function Tables() {
             return (
               <Card
                 key={table.id}
-                className={`card-hover ${isOccupied ? 'border-warning' : 'border-success'}`}
+                className={`card-hover cursor-pointer transition-all hover:scale-105 ${isOccupied ? 'border-warning shadow-md shadow-warning/10' : 'border-success shadow-md shadow-success/10'}`}
+                onClick={() => handleTableClick(table)}
               >
                 <CardContent className="p-4 text-center">
                   <div className="relative">
@@ -258,7 +274,10 @@ export default function Tables() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => freeTable(table.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          freeTable(table.id);
+                        }}
                       >
                         Liberar
                       </Button>
@@ -267,7 +286,10 @@ export default function Tables() {
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8"
-                      onClick={() => openDialog(table)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openDialog(table);
+                      }}
                     >
                       <Pencil className="h-4 w-4" />
                     </Button>
@@ -275,7 +297,10 @@ export default function Tables() {
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8 text-destructive"
-                      onClick={() => deleteTable(table.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteTable(table.id);
+                      }}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
