@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Plus, ShoppingBag, Clock, ChefHat, CheckCircle } from 'lucide-react';
+import { Plus, ShoppingBag, Clock, ChefHat, CheckCircle, Globe } from 'lucide-react';
 
 type OrderStatus = 'open' | 'preparing' | 'ready' | 'completed' | 'cancelled';
 
@@ -210,10 +210,15 @@ export default function Orders() {
                     </p>
                   )}
 
-                  {order.employees?.name && (
+                  {order.employees?.name ? (
                     <p className="text-sm text-muted-foreground mb-3 flex items-center gap-1">
                       <span className="w-2 h-2 rounded-full bg-primary/50" />
                       {order.employees.name}
+                    </p>
+                  ) : (
+                    <p className="text-sm font-medium text-primary mb-3 flex items-center gap-1">
+                      <Globe className="h-4 w-4" />
+                      Cardápio Online
                     </p>
                   )}
 

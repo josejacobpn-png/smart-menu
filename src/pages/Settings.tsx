@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Settings as SettingsIcon, Store, User, Save } from 'lucide-react';
+import { Settings as SettingsIcon, Store, User, Save, Link as LinkIcon, Copy } from 'lucide-react';
 
 export default function Settings() {
   const { restaurant, profile } = useAuth();
@@ -111,6 +111,27 @@ export default function Settings() {
               onChange={(e) => setRestaurantForm({ ...restaurantForm, address: e.target.value })}
               placeholder="Endereço completo"
             />
+          </div>
+          <div>
+            <Label>Link do Cardápio Virtual (Slug: {restaurant?.slug})</Label>
+            <div className="flex items-center gap-2 mt-1">
+              <Input
+                value={`${window.location.origin}/c/${restaurant?.slug || ''}`}
+                readOnly
+                className="bg-muted text-muted-foreground"
+              />
+              <Button 
+                type="button" 
+                variant="outline" 
+                size="icon"
+                onClick={() => {
+                  navigator.clipboard.writeText(`${window.location.origin}/c/${restaurant?.slug || ''}`);
+                  toast({ title: 'Link copiado para a área de transferência!' });
+                }}
+              >
+                <Copy className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
           <Button onClick={saveRestaurant} disabled={loading} className="gradient-primary">
             <Save className="h-4 w-4 mr-2" />

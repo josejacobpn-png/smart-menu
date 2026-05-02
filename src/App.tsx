@@ -26,6 +26,7 @@ const Employees = lazy(() => import("./pages/Employees"));
 const AdminAuth = lazy(() => import("./pages/AdminAuth"));
 const AdminTenants = lazy(() => import("./pages/AdminTenants"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const PublicMenu = lazy(() => import("./pages/PublicMenu"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -85,6 +86,16 @@ const App = () => (
                   element={
                     <Suspense fallback={<LoadingFallback />}>
                       <AdminAuth />
+                    </Suspense>
+                  } 
+                />
+                
+                {/* Public Virtual Menu */}
+                <Route 
+                  path="/c/:slug" 
+                  element={
+                    <Suspense fallback={<LoadingFallback />}>
+                      <PublicMenu />
                     </Suspense>
                   } 
                 />

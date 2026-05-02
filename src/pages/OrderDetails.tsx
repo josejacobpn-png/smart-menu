@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import {
   ArrowLeft, Plus, Minus, Trash2, ShoppingCart, Clock, ChefHat,
-  CheckCircle, Package, XCircle
+  CheckCircle, Package, XCircle, Globe
 } from 'lucide-react';
 import {
   Dialog,
@@ -55,6 +55,7 @@ interface Order {
   created_at: string;
   table_id: string | null;
   table_number?: number;
+  employees?: { name: string } | null;
 }
 
 interface OrderItem {
@@ -130,7 +131,8 @@ export default function OrderDetails() {
             *,
             table:restaurant_tables (
               number
-            )
+            ),
+            employees(name)
           `)
           .eq('id', id!)
           .eq('restaurant_id', restaurant!.id)
@@ -399,6 +401,12 @@ export default function OrderDetails() {
               <StatusIcon className="h-4 w-4" />
               {statusInfo.label}
             </div>
+            {!order.employees?.name && (
+              <div className="flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-primary/10 text-primary border border-primary/20">
+                <Globe className="h-4 w-4" />
+                Online
+              </div>
+            )}
           </div>
           <p className="text-muted-foreground">
             {getOrderTypeLabel(order.order_type)} • {new Date(order.created_at).toLocaleString('pt-BR')}
