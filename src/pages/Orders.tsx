@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Plus, ShoppingBag, Clock, ChefHat, CheckCircle, Globe } from 'lucide-react';
+import { OrderTicket } from '@/components/cashier/OrderTicket';
+import { Order as CashierOrder } from '@/types/cashier';
 
 type OrderStatus = 'open' | 'preparing' | 'ready' | 'completed' | 'cancelled';
 
@@ -28,6 +30,17 @@ export default function Orders() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [printingOrder, setPrintingOrder] = useState<{ order: CashierOrder, type: 'both' } | null>(null);
+
+  useEffect(() => {
+    if (printingOrder) {
+      const timer = setTimeout(() => {
+        window.print();
+        setPrintingOrder(null);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [printingOrder]);
 
   useEffect(() => {
     if (restaurant?.id) {
@@ -44,8 +57,17 @@ export default function Orders() {
             table: 'orders',
             filter: `restaurant_id=eq.${restaurant.id}`,
           },
-          () => {
+          (payload) => {
             fetchOrders();
+            
+            // Auto-print newly inserted orders
+            if (payload.eventType === 'INSERT' && restaurant.auto_print_tickets) {
+              const newOrderId = payload.new.id;
+              // Wait slightly for order_items to be inserted
+              setTimeout(() => {
+                fetchFullOrderAndPrint(newOrderId);
+              }, 1500);
+            }
           }
         )
         .subscribe();
@@ -74,6 +96,52 @@ export default function Orders() {
       console.error('Error fetching orders:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchFullOrderAndPrint = async (orderId: string) => {
+    try {
+      const [orderRes, itemsRes] = await Promise.all([
+        supabase
+          .from('orders')
+          .select('*, table:restaurant_tables(number), employees(name)')
+          .eq('id', orderId)
+          .single(),
+        supabase
+          .from('order_items')
+          .select('*, product:products(category:categories(name, send_to_kitchen))')
+          .eq('order_id', orderId)
+          .order('created_at'),
+      ]);
+
+      if (orderRes.error) throw orderRes.error;
+      
+      const orderData = orderRes.data as any;
+      const itemsData = itemsRes.data as any[] || [];
+      
+      const mappedItems = itemsData.map((item) => ({
+        id: item.id,
+        product_id: item.product_id,
+        product_name: item.product_name,
+        quantity: item.quantity,
+        unit_price: item.unit_price,
+        total_price: item.total_price,
+        notes: item.notes,
+        category_name: item.product?.category?.name,
+        category_send_to_kitchen: item.product?.category?.send_to_kitchen,
+      }));
+
+      const fullOrder: CashierOrder = {
+        ...orderData,
+        table_number: orderData.table?.number,
+        items: mappedItems,
+      };
+
+      if (mappedItems.length > 0) {
+        setPrintingOrder({ order: fullOrder, type: 'both' });
+      }
+    } catch (error) {
+      console.error('Error fetching full order for auto-print:', error);
     }
   };
 
@@ -234,6 +302,15 @@ export default function Orders() {
             );
           })}
         </div>
+      )}
+
+      {/* Hidden Print Component */}
+      {printingOrder && (
+        <OrderTicket
+          order={printingOrder.order}
+          type={printingOrder.type}
+          restaurantName={restaurant?.name}
+        />
       )}
     </div>
   );

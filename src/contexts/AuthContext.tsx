@@ -19,6 +19,7 @@ interface Restaurant {
   id: string;
   name: string;
   slug: string;
+  auto_print_tickets?: boolean;
 }
 
 interface AuthContextType {

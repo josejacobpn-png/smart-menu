@@ -5,8 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
-import { Settings as SettingsIcon, Store, User, Save, Link as LinkIcon, Copy } from 'lucide-react';
+import { Settings as SettingsIcon, Store, User, Save, Link as LinkIcon, Copy, Printer } from 'lucide-react';
 
 export default function Settings() {
   const { restaurant, profile } = useAuth();
@@ -17,6 +18,7 @@ export default function Settings() {
     name: restaurant?.name || '',
     phone: '',
     address: '',
+    auto_print_tickets: restaurant?.auto_print_tickets || false,
   });
 
   const [profileForm, setProfileForm] = useState({
@@ -32,6 +34,7 @@ export default function Settings() {
           name: restaurantForm.name,
           phone: restaurantForm.phone,
           address: restaurantForm.address,
+          auto_print_tickets: restaurantForm.auto_print_tickets,
         })
         .eq('id', restaurant!.id);
 
@@ -133,6 +136,20 @@ export default function Settings() {
               </Button>
             </div>
           </div>
+          <div className="flex items-center space-x-2 pt-2 border-t mt-4">
+            <Switch
+              id="auto-print"
+              checked={restaurantForm.auto_print_tickets}
+              onCheckedChange={(checked) => setRestaurantForm({ ...restaurantForm, auto_print_tickets: checked })}
+            />
+            <Label htmlFor="auto-print" className="flex items-center gap-2">
+              <Printer className="h-4 w-4 text-muted-foreground" />
+              Impressão Automática de Pedidos
+            </Label>
+          </div>
+          <p className="text-xs text-muted-foreground ml-11 -mt-2 mb-4">
+            Imprime automaticamente os cupons da cozinha e do bar quando um novo pedido é recebido.
+          </p>
           <Button onClick={saveRestaurant} disabled={loading} className="gradient-primary">
             <Save className="h-4 w-4 mr-2" />
             Salvar alterações

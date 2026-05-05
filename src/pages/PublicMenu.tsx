@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingCart, Plus, Minus, Trash2, MapPin, Store, ArrowLeft, Loader2, CheckCircle2 } from 'lucide-react';
+import { ShoppingBag, Heart, Plus, Minus, Trash2, MapPin, Store, ArrowLeft, Loader2, CheckCircle2, UtensilsCrossed } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface Restaurant {
@@ -253,33 +253,47 @@ export default function PublicMenu() {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-white pb-24">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b">
-        <div className="container max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+      <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
+        <div className="container max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            {isCheckout && (
+            {isCheckout ? (
               <Button variant="ghost" size="icon" onClick={() => setIsCheckout(false)} className="rounded-full">
-                <ArrowLeft className="h-5 w-5" />
+                <ArrowLeft className="h-5 w-5 text-[#1e1b4b]" />
               </Button>
+            ) : (
+              <div className="flex items-center gap-2">
+                <div className="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center shadow-sm">
+                  <UtensilsCrossed className="h-5 w-5 text-white" />
+                </div>
+                <h1 className="text-xl font-extrabold tracking-tight text-[#1e1b4b] uppercase">{restaurant.name}</h1>
+              </div>
             )}
-            <h1 className="text-xl font-bold truncate gradient-text">{restaurant.name}</h1>
+            {isCheckout && (
+              <h1 className="text-xl font-bold truncate text-[#1e1b4b] uppercase">Finalizar Pedido</h1>
+            )}
           </div>
+          
           {!isCheckout && (
-            <Button 
-              variant="outline" 
-              className="relative rounded-full px-4"
-              onClick={() => setIsCheckout(true)}
-              disabled={cart.length === 0}
-            >
-              <ShoppingCart className="h-5 w-5 mr-2" />
-              Carrinho
-              {cartItemCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
-                  {cartItemCount}
-                </span>
-              )}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="icon" className="rounded-full text-gray-500 hover:text-red-500 hover:bg-red-50">
+                <Heart className="h-5 w-5" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon"
+                className="relative rounded-full text-gray-700 hover:bg-gray-100"
+                onClick={() => setIsCheckout(true)}
+              >
+                <ShoppingBag className="h-5 w-5" />
+                {cartItemCount > 0 && (
+                  <span className="absolute 0 right-0 bg-red-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
+                    {cartItemCount > 9 ? '9+' : cartItemCount}
+                  </span>
+                )}
+              </Button>
+            </div>
           )}
         </div>
       </header>
@@ -287,53 +301,101 @@ export default function PublicMenu() {
       <main className="container max-w-4xl mx-auto px-4 pt-6">
         {!isCheckout ? (
           /* Menu View */
-          <div className="space-y-10">
+          <div className="space-y-8">
+            {/* Categories Grid (Top) */}
+            {categories.length > 0 && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-8">
+                {categories.map(category => {
+                  const hasProducts = products.some(p => p.category_id === category.id);
+                  if (!hasProducts) return null;
+
+                  return (
+                    <Card 
+                      key={`grid-${category.id}`} 
+                      className="cursor-pointer bg-white hover:shadow-md transition-shadow border-gray-200 flex items-center justify-center py-6 px-2"
+                      onClick={() => {
+                        const el = document.getElementById(`category-${category.id}`);
+                        if (el) {
+                          const y = el.getBoundingClientRect().top + window.scrollY - 80;
+                          window.scrollTo({ top: y, behavior: 'smooth' });
+                        }
+                      }}
+                    >
+                      <span className="font-extrabold text-[#1e1b4b] uppercase text-sm text-center tracking-wide">
+                        {category.name}
+                      </span>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Products by Category */}
             {categories.map(category => {
               const categoryProducts = products.filter(p => p.category_id === category.id);
               if (categoryProducts.length === 0) return null;
 
               return (
-                <section key={category.id} className="space-y-4">
-                  <div className="space-y-1">
-                    <h2 className="text-2xl font-bold tracking-tight">{category.name}</h2>
-                    {category.description && (
-                      <p className="text-muted-foreground">{category.description}</p>
-                    )}
+                <section key={category.id} id={`category-${category.id}`} className="space-y-0 bg-white">
+                  {/* Category Header */}
+                  <div className="bg-gray-50 py-3 px-4 w-full -mx-4 sm:mx-0 sm:w-auto">
+                    <h2 className="text-lg font-bold uppercase text-[#f97316] tracking-wide">
+                      {category.name}
+                    </h2>
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {categoryProducts.map(product => (
-                      <Card key={product.id} className="card-hover overflow-hidden flex flex-row h-full">
-                        <div className="flex-1 p-4 flex flex-col justify-between">
-                          <div className="space-y-2">
-                            <h3 className="font-semibold text-lg line-clamp-2">{product.name}</h3>
-                            {product.description && (
-                              <p className="text-sm text-muted-foreground line-clamp-2">{product.description}</p>
-                            )}
+                  <div className="flex flex-col">
+                    {categoryProducts.map((product, index) => (
+                      <div 
+                        key={product.id} 
+                        className={`flex flex-row items-center py-4 px-1 gap-4 ${
+                          index !== categoryProducts.length - 1 ? 'border-b border-gray-100' : ''
+                        }`}
+                      >
+                        {/* Product Info (Left) */}
+                        <div className="flex-1 min-w-0 pr-2">
+                          <h3 className="font-extrabold text-[#1e1b4b] text-[15px] uppercase truncate">
+                            {product.name}
+                          </h3>
+                          <div className="font-bold text-gray-500 text-sm mt-1">
+                            {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(product.price)}
                           </div>
-                          <div className="mt-4 flex items-center justify-between">
-                            <span className="font-bold text-primary">
-                              {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(product.price)}
-                            </span>
+                          {product.description && (
+                            <p className="text-xs text-gray-400 mt-1 line-clamp-2 leading-tight">
+                              {product.description}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Product Actions & Image (Right) */}
+                        <div className="flex items-center gap-3 shrink-0">
+                          {product.image_url && (
+                            <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 shrink-0 shadow-sm border border-gray-100">
+                              <img 
+                                src={product.image_url} 
+                                alt={product.name}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          )}
+                          <div className="flex flex-col items-center justify-center gap-2">
                             <Button 
-                              size="sm" 
-                              className="rounded-full h-8 w-8 p-0"
+                              variant="ghost" 
+                              size="icon" 
+                              className="h-8 w-8 rounded-full text-gray-400 hover:text-red-500 hover:bg-red-50"
+                            >
+                              <Heart className="h-4 w-4" />
+                            </Button>
+                            <Button 
+                              size="icon" 
+                              className="rounded-full h-8 w-8 bg-[#f97316] hover:bg-[#ea580c] text-white shadow-sm"
                               onClick={() => addToCart(product)}
                             >
                               <Plus className="h-4 w-4" />
                             </Button>
                           </div>
                         </div>
-                        {product.image_url && (
-                          <div className="w-1/3 min-w-[120px] bg-muted relative">
-                            <img 
-                              src={product.image_url} 
-                              alt={product.name}
-                              className="absolute inset-0 w-full h-full object-cover"
-                            />
-                          </div>
-                        )}
-                      </Card>
+                      </div>
                     ))}
                   </div>
                 </section>
@@ -515,7 +577,7 @@ export default function PublicMenu() {
             onClick={() => setIsCheckout(true)}
           >
             <span className="flex-1 text-left font-bold">{cartItemCount} itens</span>
-            <span className="flex-1 text-center flex justify-center"><ShoppingCart className="h-5 w-5" /></span>
+            <span className="flex-1 text-center flex justify-center"><ShoppingBag className="h-5 w-5" /></span>
             <span className="flex-1 text-right font-bold">
               {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(cartTotal)}
             </span>

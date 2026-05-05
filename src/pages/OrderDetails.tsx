@@ -67,6 +67,7 @@ interface OrderItem {
   total_price: number;
   notes: string | null;
   category_name?: string;
+  category_send_to_kitchen?: boolean;
 }
 
 interface Product {
@@ -191,6 +192,7 @@ export default function OrderDetails() {
         total_price: item.total_price,
         notes: item.notes,
         category_name: item.product?.category?.name,
+        category_send_to_kitchen: item.product?.category?.send_to_kitchen,
       })) || [];
 
       setOrderItems(mappedItems);
